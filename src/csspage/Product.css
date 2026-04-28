@@ -1,0 +1,267 @@
+.pro-page {
+  background-color: #f1eaea;
+  padding: 40px;
+  margin-top: 70px;
+  display: flex; 
+  justify-content: center;
+}
+
+
+.pro-container {
+  display: flex;
+  gap: 20px;
+  width: 100%;
+  max-width: 1050px;
+}
+
+/*left */
+.pro-page-img-main {
+  width: 60%;
+  display: flex;
+  gap: 20px;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 10px;
+}
+
+.pro-mini-img {
+  width: 20%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.pro-mini-img img {
+  width: 100%;
+  height: 80px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: 1px solid #ddd;
+  transition: 0.3s;
+}
+
+.pro-mini-img img:hover {
+  border: 2px solid #1a237e;
+  transform: scale(1.05);
+}
+
+/* MAIN IMAGE */
+.pro-page-img-main > div:last-child {
+  width: 80%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.pro-page-img-main > div:last-child img {
+  width: 100%;
+  max-width: 400px;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 15px;
+}
+
+/* right */
+.pro-page-text-main {
+  width: 50%;
+  background: #ffffff;
+  padding: 25px;
+  border-radius: 10px;
+
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+/* TEXT */
+.pro-page-text-main h2 {
+  font-size: 24px;
+  color: #222;
+  padding: 10px;
+  margin: 5px;
+}
+
+.pro-page-text-main p {
+  font-size: 25px;
+  color: #6b6a6a;
+  padding: 10px;
+  margin: 5px;
+}
+
+.pro-page-text-main p:first-of-type {
+  font-size: 22px;
+  font-weight: bold;
+  color: #1a237e;
+  padding: 10px;
+  margin: 5px;
+}
+/* size */
+.size-box {
+  display: flex;
+  gap: 10px;
+  padding: 10px;
+}
+
+.size-item {
+  padding: 8px 14px;
+  border: 1px solid #000;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 20px;
+  background: #fff;
+  transition: 0.3s;
+}
+
+.size-item:hover {
+  background: #1a237e;
+  color: #fff;
+  border-color: #1a237e;
+}
+
+/* BUTTON */
+.btn-1-pro {
+  width: 200px;
+  background: #1a237e;
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+  margin-top: 30px;
+}
+
+.btn-1-pro:hover {
+  background: #555;
+}
+
+@media (max-width: 768px) {
+  .pro-container {
+    flex-direction: column;
+  }
+
+  .pro-page-img-main,
+  .pro-page-text-main {
+    width: 100%;
+  }
+
+  .pro-page-img-main {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .pro-mini-img {
+    flex-direction: row;
+    justify-content: center;
+    width: 100%;
+  }
+}
+
+/*product page  */
+.product-pro-page {
+  background: #f1eaea;
+  padding: 40px;
+  border-radius: 20px;
+  margin-top: 70px;
+}
+
+.product-pro-container {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 25px;
+}
+
+.product-pro-card {
+  background: #fff;
+  border-radius: 18px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  transition: 0.3s ease;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.08);
+}
+
+.product-pro-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.15);
+}
+
+.image-box {
+  padding: 5px;
+}
+
+.image-box img {
+  width: 100%;
+  height: 300px;
+  /* object-fit: cover; */
+  border-radius: 15px;
+}
+
+.badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: linear-gradient(45deg, #1a237e, #2834b4);
+  color: #fff;
+  font-size: 12px;
+  padding: 5px 10px;
+  border-radius: 20px;
+}
+
+.product-pro-text {
+  padding: 12px 16px;
+  text-align: left;
+  position: relative;
+  background-color: #eeeeee6c;
+}
+
+.name {
+  font-size: 20px;
+  font-weight: 900;
+  margin-bottom: 6px;
+}
+
+.desc {
+  font-size: 18px;
+  color: #555;
+  line-height: 1.4;
+}
+
+.bottom {
+  padding: 12px 14px;
+  border-top: 1px solid #eee;
+  cursor: pointer;
+}
+
+.price {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a237e;
+}
+
+.product-pro-card {
+  animation: slideUp 0.7s ease forwards;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(40px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+@media (max-width: 1024px) {
+  .product-pro-container {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 600px) {
+  .product-pro-container {
+    grid-template-columns: repeat(1, 1fr);
+  }
+}

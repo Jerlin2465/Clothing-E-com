@@ -1,0 +1,97 @@
+const product = [
+  {
+    id: 1,
+    name: "Casual Shirt",
+    price: 999,
+    image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf",
+    description: "Comfortable cotton casual shirt",
+    category: "Shirt",
+  },
+  {
+    id: 2,
+    name: "Formal Shirt",
+    price: 1499,
+    image: "https://images.unsplash.com/photo-1598033129183-c4f50c736f10",
+    description: "Slim fit formal shirt",
+    category: "Formal",
+  },
+  {
+    id: 3,
+    name: "T-Shirt",
+    price: 599,
+    image: "https://images.unsplash.com/photo-1521572163474-6864f9cf17ab",
+    description: "Round neck cotton t-shirt",
+    category: "T-Shirt",
+  },
+  {
+    id: 4,
+    name: "Jeans",
+    price: 1999,
+    image: "https://images.unsplash.com/photo-1541099649105-f69ad21f3246",
+    description: "Blue denim jeans",
+    category: "Pants",
+  },
+  // {
+  //   id: 5,
+  //   name: "Suit",
+  //   price: 5999,
+  //   image: "https://images.unsplash.com/photo-1594938298603-c8148c4dae35",
+  //   description: "Premium formal suit",
+  //   category: "Formal",
+  // },
+  // {
+  //   id: 6,
+  //   name: "Hoodie",
+  //   price: 1799,
+  //   image: "https://images.unsplash.com/photo-1556821840-3a63f95609a7",
+  //   description: "Warm and cozy hoodie",
+  //   category: "Winter",
+  // },
+  // {
+  //   id: 7,
+  //   name: "Blazer",
+  //   price: 3499,
+  //   image: "https://images.unsplash.com/photo-1593032465175-481ac7f401a0",
+  //   description: "Elegant formal blazer",
+  //   category: "Formal",
+  // },
+  // {
+  //   id: 8,
+  //   name: "Cargo Pants",
+  //   price: 1899,
+  //   image: "https://images.unsplash.com/photo-1584865288642-42078afe6942",
+  //   description: "Multi-pocket cargo pants",
+  //   category: "Pants",
+  // },
+  // {
+  //   id: 9,
+  //   name: "Polo T-Shirt",
+  //   price: 899,
+  //   image: "https://images.unsplash.com/photo-1585386959984-a4155224a1ad",
+  //   description: "Stylish polo t-shirt",
+  //   category: "T-Shirt",
+  // },
+  // {
+  //   id: 10,
+  //   name: "Denim Jacket",
+  //   price: 2799,
+  //   image: "https://images.unsplash.com/photo-1503342217505-b0a15ec3261c",
+  //   description: "Classic denim jacket",
+  //   category: "Winter",
+  // },
+  //  {
+  //   "id": 11,
+  //   "name": "Men's Casual Jacket",
+  //   "image": "https://images.unsplash.com/photo-1591047139829-d91aecb6caea",
+  //   "price": 1999,
+  //   "category": "jacket"
+  // },
+  // {
+  //   "id": 12,
+  //   "name": "Men's Formal Pant",
+  //   "image": "https://images.unsplash.com/photo-1593032465175-481ac7f401a0",
+  //   "price": 1499,
+  //   "category": "formal"
+  // }
+];
+export default product;
