@@ -6,7 +6,7 @@ const product = [
     image: "https://images.unsplash.com/photo-1602810318383-e386cc2a3ccf",
     description: "Comfortable cotton casual shirt",
     category: "Shirt",
-  },
+  }, 
   {
     id: 2,
     name: "Formal Shirt",

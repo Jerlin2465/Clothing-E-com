@@ -207,7 +207,7 @@ export default function PrimarySearchAppBar() {
 
             <IconButton
               color="inherit"
-              onClick={() => navigate("/wishli")}
+              onClick={() => navigate("/wishlist")}
               sx={{
                 mr: 2,
                 p: "0 15px 0 15px",

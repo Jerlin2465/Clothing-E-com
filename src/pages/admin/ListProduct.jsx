@@ -41,6 +41,7 @@ const ListProduct = () => {
       price: item.price,
       description: item.description,
       gender: item.gender,
+      category: item.category,
       size: item.size || [],
       image: item.image || [],
     });
@@ -54,6 +55,7 @@ const ListProduct = () => {
       formData.append("price", editData.price);
       formData.append("description", editData.description);
       formData.append("gender", editData.gender);
+      formData.append("category", editData.category);
       formData.append("size", JSON.stringify(editData.size));
 
       formData.append("oldImages", JSON.stringify(editData.image));
@@ -63,7 +65,10 @@ const ListProduct = () => {
         formData.append("index", key);
       });
 
-      await axios.put(`http://localhost:5000/update-product/${id}`, formData);
+      await axios.put(
+        `http://localhost:5000/get-product/update-product/${id}`,
+        formData,
+      );
 
       alert("Updated successfully");
       setEditId(null);
@@ -83,7 +88,9 @@ const ListProduct = () => {
   };
   const handledelete = async (id) => {
     try {
-      await axios.delete(`http://localhost:5000/delete-product/${id}`);
+      await axios.delete(
+        `http://localhost:5000/get-product/delete-product/${id}`,
+      );
       alert("Delete Product Successfull");
       setProduct();
     } catch (error) {
@@ -200,6 +207,11 @@ const ListProduct = () => {
                       value={editData.gender || ""}
                       onChange={handleChange}
                     />
+                    <input
+                      name="category"
+                      value={editData.category || ""}
+                      onChange={handleChange}
+                    />
 
                     <button onClick={() => handleUpdate(item._id)}>Save</button>
                     <button onClick={() => setEditId(null)}>Cancel</button>
@@ -219,7 +231,7 @@ const ListProduct = () => {
                     </div>
 
                     <p>{item.gender}</p>
-
+                    <p>{item.category}</p>
                     <div
                       style={{
                         display: "flex",

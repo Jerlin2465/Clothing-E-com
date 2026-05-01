@@ -1,6 +1,6 @@
 import React from "react";
 import { Outlet, useNavigate } from "react-router-dom";
-import "../../csspage/adminRouter.css"
+import "../../csspage/adminRouter.css";
 
 const AdminLayout = () => {
   const navigate = useNavigate();
@@ -12,7 +12,7 @@ const AdminLayout = () => {
         <p onClick={() => navigate("/adminrouter/listproduct")}>ListProduct</p>
       </div>
       <div className="outlet">
-        <Outlet /> 
+        <Outlet />
       </div>
     </div>
   );

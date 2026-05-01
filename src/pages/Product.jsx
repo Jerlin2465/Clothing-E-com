@@ -3,6 +3,7 @@ import "../csspage/Product.css";
 import "../csspage/Home.css";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import { FaHeart } from "react-icons/fa";
 
 const Product = () => {
   const { id } = useParams();
@@ -11,6 +12,8 @@ const Product = () => {
   const [products, setProducts] = useState([]);
   const [product, setProduct] = useState(null);
   const [slideimg, setSlideimg] = useState(0);
+  const [like, setLike] = useState([]);
+  const [selectedSize, setSelectedSize] = useState("");
 
   const token = localStorage.getItem("token");
 
@@ -34,33 +37,74 @@ const Product = () => {
 
   useEffect(() => {
     getData();
+    setSelectedSize("");
     window.scrollTo(0, 0);
   }, [id]);
 
-  //
   const handleAddToCart = async (productId) => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        alert("Please login first");
-        return;
-      }
+    console.log("Button clicked");
 
+    if (!token) {
+      alert("Please login first");
+      return;
+    }
+
+    if (!selectedSize) {
+      alert("Please select a size");
+      return;
+    }
+
+    try {
       await axios.post(
         "http://localhost:5000/cart/add",
-        { productId },
+        {
+          productId,
+          size: selectedSize,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         },
       );
-      console.log("add to cart page");
+
+      console.log("Added to cart");
       navigate("/cart");
     } catch (error) {
       console.log(error.response?.data || error.message);
     }
   };
+
+  //  WISHLIST
+  const handleToggle = async (id) => {
+    try {
+      if (like.includes(id)) {
+        await axios.delete("http://localhost:5000/wishlist/remove", {
+          data: { productId: id },
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        setLike((prev) => prev.filter((item) => item !== id));
+      } else {
+        await axios.post(
+          "http://localhost:5000/wishlist/add",
+          { productId: id },
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          },
+        );
+
+        setLike((prev) => [...prev, id]);
+      }
+    } catch (error) {
+      console.log(error.response?.data || error.message);
+    }
+  };
+
   return (
     <>
       {id && product && (
@@ -78,6 +122,7 @@ const Product = () => {
                       border:
                         slideimg === i ? "2px solid black" : "1px solid #ddd",
                     }}
+                    alt=""
                   />
                 ))}
               </div>
@@ -90,7 +135,10 @@ const Product = () => {
               </div>
             </div>
 
-            <div className="pro-page-text-main">
+            <div
+              className="pro-page-text-main"
+              style={{ position: "relative", zIndex: 5 }}
+            >
               <h2>{product.productName}</h2>
               <p>₹ {product.price}</p>
               <p>{product.description}</p>
@@ -98,7 +146,20 @@ const Product = () => {
               <div className="size-box">
                 {product.size?.length > 0
                   ? product.size.map((s, i) => (
-                      <span key={i} className="size-item">
+                      <span
+                        key={i}
+                        onClick={() => setSelectedSize(s.size)}
+                        style={{
+                          padding: "8px 12px",
+                          marginRight: "10px",
+                          cursor: "pointer",
+                          borderRadius: "10px",
+                          fontSize: "25px",
+                          backgroundColor:
+                            selectedSize === s.size ? " black" : " #ccc",
+                            color:selectedSize===s.size?"#fff":"#000"
+                        }}
+                      >
                         {s.size}
                       </span>
                     ))
@@ -107,6 +168,13 @@ const Product = () => {
 
               <button
                 className="btn-1-pro"
+                style={{
+                  marginTop: "20px",
+                  padding: "10px 20px",
+                  cursor: "pointer",
+                  position: "relative",
+                  zIndex: 10,
+                }}
                 onClick={() => handleAddToCart(product._id)}
               >
                 Add to Cart
@@ -116,7 +184,7 @@ const Product = () => {
         </div>
       )}
 
-      {/*  PRODUCT LIST  */}
+      {/* more product */}
       <div className="product-pro-page">
         {id && <h2 style={{ margin: "20px" }}>More Products</h2>}
 
@@ -126,11 +194,25 @@ const Product = () => {
             .map((item) => (
               <div className="product-pro-card" key={item._id}>
                 <div className="image-box">
+                  <span className="badge">{item.gender}</span>
+
                   <img
                     src={`http://localhost:5000/uploads/${item.image?.[0]}`}
                     alt="product"
                   />
-                  <span className="badge">{item.gender}</span>
+
+                  <span
+                    className="badg-1"
+                    style={{ cursor: "pointer", marginLeft: "20px" }}
+                    onClick={() => handleToggle(item._id)}
+                  >
+                    <FaHeart
+                      style={{
+                        color: like.includes(item._id) ? "red" : "#ccc",
+                        fontSize: "20px",
+                      }}
+                    />
+                  </span>
                 </div>
 
                 <div
@@ -141,6 +223,7 @@ const Product = () => {
                   <p className="desc">{item.description}</p>
                   <div className="price">₹{item.price}</div>
                 </div>
+
                 <div className="bottom">
                   <div onClick={() => navigate(`/product/${item._id}`)}>
                     View Details →
@@ -153,4 +236,5 @@ const Product = () => {
     </>
   );
 };
+
 export default Product;

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
-import homeImg2 from "../assets/homeimg-2.png";
+// import homeImg2 from "../assets/homeimg-2.png";
+import homeImg2 from "../assets/hoodi.avif";
 import banner from "../assets/banner.jpg";
 import banner3 from "../assets/hoodi-2.jpg";
 import { IoIosArrowUp } from "react-icons/io";
@@ -8,6 +9,7 @@ import HomeProducts from "./home/HomeProducts";
 
 const Home = () => {
   const [scroll, setScroll] = useState(false);
+  const [category, setCategory] = useState("");
 
   useEffect(() => {
     const handleScroll = () => {
@@ -19,62 +21,71 @@ const Home = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  const handleCategory = (value) => {
+    if (value === "all") {
+      setCategory("");
+    } else {
+      setCategory(value);
+    }
+  };
+
   return (
     <>
       {/* HERO SECTION */}
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: { xs: "column", md: "row" },
-          alignItems: "center",
-          justifyContent: "center",
-          width: { xs: "95%", md: "90%" },
-          mx: "auto",
-          minHeight: { xs: 400, md: 600 },
-          borderRadius: 5,
-          boxShadow: 4,
-          mt: 13,
-          p: 2,
-          background: "linear-gradient(to left, #b0adad, #e9e6e6, #b0adad)",
-        }}
-      >
-        <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
-          <Box
-            component="img"
-            src={homeImg2}
-            sx={{
-              width: { xs: "80%", md: "90%" },
-              maxWidth: 500,
-              objectFit: "contain",
-            }}
-          />
-        </Box>
-
+      <Box sx={{ backgroundColor: "#aab", p: 5, mt: 13 }}>
         <Box
           sx={{
-            flex: 1,
-            textAlign: { xs: "center", md: "left" },
-            p: { xs: 2, md: 4 },
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            alignItems: "center",
+            justifyContent: "center",
+            width: { xs: "95%", md: "90%" },
+            mx: "auto",
+            minHeight: { xs: 400, md: 600 },
+            borderRadius: 5,
+            boxShadow: 4,
+            // mt: 13,
+            p: 2,
+            background: "#e3dede",
           }}
         >
-          <Typography
-            variant="h3"
+          <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
+            <Box
+              component="img"
+              src={homeImg2}
+              sx={{
+                width: { xs: "80%", md: "90%" },
+                maxWidth: 500,
+                objectFit: "contain",
+              }}
+            />
+          </Box>
+
+          <Box
             sx={{
-              fontWeight: "bold",
-              fontSize: { xs: 28, sm: 36, md: 48 },
+              flex: 1,
+              textAlign: { xs: "center", md: "left" },
+              p: { xs: 2, md: 4 },
             }}
           >
-            Your style, your story.
-            <br /> Wear it beautifully.
-          </Typography>
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: "bold",
+                fontSize: { xs: 28, sm: 36, md: 48 },
+              }}
+            >
+              Your style, your story.
+              <br /> Wear it beautifully.
+            </Typography>
 
-          <Typography sx={{ mt: 3, fontSize: { xs: 14, md: 18 } }}>
-            Style starts here. Trends you'll love. Looks that stand out.
-            Confidence in every outfit.
-          </Typography>
+            <Typography sx={{ mt: 3, fontSize: { xs: 14, md: 18 } }}>
+              Style starts here. Trends you'll love. Looks that stand out.
+              Confidence in every outfit.
+            </Typography>
+          </Box>
         </Box>
       </Box>
-
       {/* CATEGORY TEXT */}
       <Box sx={{ backgroundColor: "#e3dede", mt: 2, py: 2 }}>
         <Box
@@ -85,27 +96,33 @@ const Home = () => {
             gap: 2,
           }}
         >
-          {["All", "Shirt", "Pant", "T-Shirt"].map((item) => (
+          {["all", "shirt", "pant", "tshirt"].map((item) => (
             <Typography
               key={item}
+              onClick={() => handleCategory(item)}
               sx={{
-                px: 2,
+                px: 1,
                 py: 1,
                 fontSize: 16,
                 cursor: "pointer",
                 borderRadius: 10,
-                "&:hover": { backgroundColor: "#000", color: "#fff" },
+                backgroundColor:
+                  category === (item === "all" ? "" : item)
+                    ? "#000"
+                    : "transparent",
+                color:
+                  category === (item === "all" ? "" : item) ? "#fff" : "#000",
+                "&:hover": { backgroundColor: "#CCC", color: "#000" },
               }}
             >
-              {item}
+              {item.toUpperCase()}
             </Typography>
           ))}
         </Box>
       </Box>
 
       {/* PRODUCTS */}
-      <HomeProducts />
-
+      <HomeProducts category={category} />
       {/* BANNER */}
       <Box
         sx={{
@@ -212,7 +229,7 @@ const Home = () => {
           sx={{
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
-            justifyContent: "space-between",
+            justifyContent: "space-around",
             textAlign: "center",
             gap: 3,
           }}
@@ -233,7 +250,7 @@ const Home = () => {
           </Box>
         </Box>
 
-        <Typography sx={{ textAlign: "center", mt: 3, fontSize: 14 }}>
+        <Typography sx={{ textAlign: "center", fontSize: 14 }}>
           By Design
         </Typography>
       </Box>

@@ -51,7 +51,7 @@
 .badge-1 {
   position: absolute;
   top: 10px;
-  right: 10px;
+  left: 20px;
   background: linear-gradient(45deg, #1a237e, #2834b4);
   color: #fff;
   padding: 5px 10px;

@@ -2,22 +2,23 @@ import React, { useEffect, useState } from "react";
 import "../csspage/Cart.css";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
+import { Button, Paper } from "@mui/material";
 
 const Cart = () => {
   const navigate = useNavigate();
   const [cart, setCart] = useState([]);
 
+  const token = localStorage.getItem("token");
+
   const getCart = async () => {
     try {
       const res = await axios.get("http://localhost:5000/cart", {
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { Authorization: `Bearer ${token}` },
       });
 
       setCart(res.data.items || []);
-    } catch (error) {
-      console.log(error.response?.data || error.message);
+    } catch (err) {
+      console.log(err.message);
     }
   };
 
@@ -25,125 +26,137 @@ const Cart = () => {
     getCart();
   }, []);
 
-  const handleIncrease = (productId) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.productId._id === productId
-          ? { ...item, quantity: item.quantity + 1 }
-          : item,
-      ),
-    );
+  const getTotal = () => {
+    return cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
   };
 
-  const handleDecrease = (productId) => {
-    setCart((prev) =>
-      prev.map((item) =>
-        item.productId._id === productId && item.quantity > 1
-          ? { ...item, quantity: item.quantity - 1 }
-          : item,
-      ),
+  const handleIncrease = async (item) => {
+    const newQty = item.quantity + 1;
+
+    await axios.put(
+      "http://localhost:5000/cart/update",
+      {
+        productId: item.productId,
+        quantity: newQty,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
     );
+
+    getCart();
+  };
+
+  const handleDecrease = async (item) => {
+    if (item.quantity <= 1) return;
+
+    const newQty = item.quantity - 1;
+
+    await axios.put(
+      "http://localhost:5000/cart/update",
+      {
+        productId: item.productId,
+        quantity: newQty,
+      },
+      {
+        headers: { Authorization: `Bearer ${token}` },
+      },
+    );
+
+    getCart();
   };
 
   const handleDelete = async (productId) => {
-    try {
-      await axios.delete("http://localhost:5000/cart/remove", {
-        data: { productId },
-        headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-      });
+    await axios.delete("http://localhost:5000/cart/remove", {
+      data: { productId },
+      headers: { Authorization: `Bearer ${token}` },
+    });
 
-      getCart();
-    } catch (error) {
-      console.log(error.response?.data || error.message);
-    }
+    getCart();
   };
 
   return (
     <div className="product-page-cart">
       <div className="product-container-cart">
         {cart.length === 0 ? (
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-              height: "591px",
-            }}
-          >
+          <div style={{ textAlign: "center", marginTop: "200px" }}>
+            <h2>Cart is Empty</h2>
             <button
               onClick={() => navigate("/product")}
               style={{
-                padding: 20,
-                width: "200px",
                 border: "none",
-                cursor: "pointer",
-                borderRadius: 8,
-                background: "#fff",
+                backgroundColor: "#000",
+                color: "#fff",
+                padding: "10px 30px 10px 30px",
+                borderRadius: "10px",
                 fontSize: "20px",
               }}
             >
-              Go To Shop
+              Go To Shop 🛒
             </button>
           </div>
         ) : (
-          cart.map((item) => {
-            const product = item.productId;
-            if (!product) return null;
-
-            return (
-              <div className="product-card-cart" key={product._id}>
+          <>
+            {cart.map((item) => (
+              <div className="product-card-cart" key={item.productId}>
                 <img
-                  src={`http://localhost:5000/uploads/${product.image?.[0]}`}
-                  alt="Product"
+                  src={`http://localhost:5000/uploads/${item.image?.[0]}`}
+                  alt=""
                 />
 
-                <div className="product-card-cart">
-                  <h3>{product.productName}</h3>
+                <h3>{item.name}</h3>
+                <h4>₹{item.price}</h4>
 
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "10px",
-                    }}
-                  >
-                    <p
-                      onClick={() => handleDecrease(product._id)}
-                      style={{
-                        cursor: "pointer",
-                        fontSize: "20px",
-                        userSelect: "none",
-                      }}
-                    >
-                      -
-                    </p>
-
-                    <p>{item.quantity}</p>
-
-                    <p
-                      onClick={() => handleIncrease(product._id)}
-                      style={{
-                        cursor: "pointer",
-                        fontSize: "20px",
-                        userSelect: "none",
-                      }}
-                    >
-                      +
-                    </p>
-                  </div>
-
-                  <p>₹ {product.price}</p>
-
-                  <button onClick={() => handleDelete(product._id)}>
-                    Remove
-                  </button>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "10px" }}
+                >
+                  <button onClick={() => handleDecrease(item)}>-</button>
+                  <span>{item.quantity}</span>
+                  <button onClick={() => handleIncrease(item)}>+</button>
                 </div>
-                <button>Proceed To Pay</button>
+
+                <button onClick={() => handleDelete(item.productId)}>
+                  Remove
+                </button>
               </div>
-            );
-          })
+            ))}
+
+            <Paper
+              style={{
+                padding: "20px",
+                marginTop: "20px",
+                width: "300px",
+                borderRadius: "10px",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                marginLeft: "auto",
+                marginRight: "auto",
+              }}
+            >
+              <p>Total Items: {cart.length}</p>
+
+              <p>
+                <b>Total Amount:</b> ₹{getTotal()}
+              </p>
+              <Button
+                sx={{
+                  width: "250px",
+                  marginTop: "20px",
+                  padding: "10px",
+                  backgroundColor: "#000ccf",
+                  color: "#fff",
+                  borderRadius: "10px",
+                  cursor: "pointer",
+                  "&:hover": {
+                    backgroundColor: "#0000ff",
+                  },
+                }}
+              >
+                Proceed To Pay
+              </Button>
+            </Paper>
+          </>
         )}
       </div>
     </div>

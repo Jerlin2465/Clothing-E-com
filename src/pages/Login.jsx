@@ -41,18 +41,19 @@ const Login = () => {
       console.log("LOGIN RESPONSE:", res.data);
 
       localStorage.setItem("token", res.data.token);
-      localStorage.setItem("userId", res.data.user._id);
-      console.log("Saved token:", localStorage.getItem("token"));
+      localStorage.setItem("user", JSON.stringify(res.data.user));
 
       setMessage(res.data.message);
       setType("success");
       setOpen(true);
 
-      if (res.data.user.role === "admin") {
-        navigate("/adminrouter");
-      } else {
-        navigate("/product");
-      }
+      setTimeout(() => {
+        if (res.data.user.role === "admin") {
+          navigate("/adminrouter");
+        } else {
+          navigate("/product");
+        }
+      }, 1500);
     } catch (error) {
       setMessage(error.response?.data?.message || error.message);
       setType("error");

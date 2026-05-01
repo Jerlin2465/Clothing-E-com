@@ -2,11 +2,12 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "../../csspage/Home.css";
 import { useNavigate } from "react-router-dom";
-import { FaRegHeart } from "react-icons/fa";
+import { FaHeart } from "react-icons/fa";
 
-const HomeProducts = () => {
+const HomeProducts = ({ category }) => {
   const [product, setProduct] = useState([]);
   const [slideimg, setSlideimg] = useState({});
+  const [like, setLike] = useState([]);
 
   const navigate = useNavigate();
 
@@ -14,6 +15,11 @@ const HomeProducts = () => {
     try {
       const res = await axios.get(
         "http://localhost:5000/get-product/get-product",
+        {
+          params: {
+            category: category,
+          },
+        },
       );
       setProduct(res.data);
     } catch (error) {
@@ -23,7 +29,37 @@ const HomeProducts = () => {
 
   useEffect(() => {
     getProduct();
-  }, []);
+  }, [category]);
+
+  // WISHLIST
+  const handleToggle = async (id) => {
+    try {
+      if (like.includes(id)) {
+        await axios.delete("http://localhost:5000/wishlist/remove", {
+          data: { productId: id },
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        });
+
+        setLike((prev) => prev.filter((item) => item !== id));
+      } else {
+        await axios.post(
+          "http://localhost:5000/wishlist/add",
+          { productId: id },
+          {
+            headers: {
+              Authorization: `Bearer ${localStorage.getItem("token")}`,
+            },
+          },
+        );
+
+        setLike((prev) => [...prev, id]);
+      }
+    } catch (error) {
+      console.log(error.response?.data || error.message);
+    }
+  };
 
   return (
     <div className="product-home-page">
@@ -41,21 +77,39 @@ const HomeProducts = () => {
                   src={`http://localhost:5000/uploads/${item.image?.[currentIndex]}`}
                   alt="product"
                 />
-                <span className="badg-1">
-                  <FaRegHeart />
+
+                {/* HEART */}
+                <span
+                  className="badg-1"
+                  style={{ cursor: "pointer", marginLeft: "20px" }}
+                  onClick={() => {
+                    handleToggle(item._id);
+                  }}
+                >
+                  <FaHeart
+                    style={{
+                      color: like.includes(item._id) ? "red" : "#ccc",
+                      fontSize: "20px",
+                    }}
+                  />
                 </span>
               </div>
 
+              {/* TEXT */}
               <div
                 className="home-product-text"
                 onClick={() => navigate(`/product/${item._id}`)}
               >
                 <p className="name">{item.productName}</p>
+
                 <p className="desc">{item.description}</p>
+
+                <p className="desc"> {item.category}</p>
+
                 <div className="price">₹{item.price}</div>
               </div>
 
-              {/* BOTTOM */}
+              {/* BUTTON */}
               <div className="bottom">
                 <div
                   className="action-text"

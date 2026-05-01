@@ -14,6 +14,7 @@ const Adminpanel = () => {
     price: "",
     description: "",
     gender: "",
+    category: "",
   });
 
   const [image, setImage] = useState([]);
@@ -62,7 +63,7 @@ const Adminpanel = () => {
     formData.append("price", product.price);
     formData.append("description", product.description);
     formData.append("gender", product.gender);
-
+    formData.append("category", product.category);
     image.forEach((image) => {
       formData.append("image", image);
     });
@@ -70,13 +71,19 @@ const Adminpanel = () => {
     formData.append("size", JSON.stringify(size));
     try {
       const res = await axios.post(
-        "http://localhost:5000/auth/upload",
+        "http://localhost:5000/get-product/upload",
         formData,
         { withCredentials: true },
       );
       console.log(res.data);
       alert("Product Added Successfully");
-      setProduct({ productName: "", price: "", description: "", gender: "" });
+      setProduct({
+        productName: "",
+        price: "",
+        description: "",
+        gender: "",
+        category: "",
+      });
       setImage([]);
       setSize([""]);
     } catch (error) {
@@ -177,6 +184,22 @@ const Adminpanel = () => {
             onChange={handleChange}
             fullWidth
           />
+          <TextField
+            select
+            name="category"
+            value={product.category}
+            onChange={handleChange}
+            fullWidth
+            SelectProps={{
+              native: true,
+            }}
+          >
+            <option value="">Select Category</option>
+            <option value="shirt">Shirt</option>
+            <option value="pant">Pant</option>
+            <option value="tshirt">T-Shirt</option>
+            <option value="hoodie">Hoodie</option>
+          </TextField>
 
           <Box>
             <Typography mb={1}>Select Size</Typography>
