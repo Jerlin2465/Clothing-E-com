@@ -1,81 +1,147 @@
-import React, { useState } from "react";
-import {
-  Box,
-  TextField,
-  Typography,
-  Radio,
-  RadioGroup,
-  FormControlLabel,
-  Button,
-  Paper,
-} from "@mui/material";
+import { Box, Button, Paper, Typography } from "@mui/material";
+import { useLocation, useNavigate } from "react-router-dom";
+import img from "../assets/payment.jpg";
+import axios from "axios";
 
 const PaymentForm = () => {
-  const [payment, setPayment] = useState("cash");
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const token = localStorage.getItem("token");
+
+  const totalAmount = location.state?.totalAmount;
+
+  const cartItem = location.state?.cartItem;
+
+  const handlePayment = async () => {
+    try {
+      const { data } = await axios.post("http://localhost:5000/payment/order", {
+        amount: totalAmount,
+      });
+
+      const options = {
+        key: import.meta.env.VITE_RAZOR_PAYMENT_ID,
+
+        amount: data.amount,
+
+        currency: data.currency,
+
+        name: "jerry",
+
+        description: "Shopping Payment",
+
+        order_id: data.id,
+
+        handler: async function (response) {
+          try {
+            const verifyData = await axios.post(
+              "http://localhost:5000/payment/verify",
+              {
+                ...response,
+                amount: totalAmount,
+                products: cartItem,
+              },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
+            );
+
+            if (verifyData.data.success) {
+              alert("Payment Successful");
+
+              navigate("/success");
+            } else {
+              alert("Payment Failed");
+            }
+          } catch (error) {
+            console.log(error);
+          }
+        },
+
+        prefill: {
+          name: "Jerry",
+          email: "abc@gmail.com",
+          contact: "9876543210",
+        },
+
+        theme: {
+          color: "#0000ff",
+        },
+      };
+
+      const razorpay = new window.Razorpay(options);
+
+      razorpay.open();
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
   return (
-    <Box
-      sx={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundColor: "#D4A373",
-      }}
-    >
-      <Paper
-        elevation={4}
+    <>
+      <Box
         sx={{
-          padding: 4,
-          width: 350,
-          borderRadius: "12px",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: " #aab",
+
+          // backgroundImage: `url(${img})`,
+          // backgroundSize: "cover",
+          // backgroundPosition: "center",
         }}
       >
-        <Typography variant="h5" mb={2} textAlign="center">
-          Payment Form
-        </Typography>
-
-        <TextField
-          fullWidth
-          label="Holder Name"
-          variant="outlined"
-          margin="normal"
-        />
-
-        <Typography mt={2}>Select Payment Method</Typography>
-        <RadioGroup
-          value={payment}
-          onChange={(e) => setPayment(e.target.value)}
-        >
-          <FormControlLabel value="cash" control={<Radio />} label="Cash" />
-          <FormControlLabel value="card" control={<Radio />} label="Card" />
-        </RadioGroup>
-
-        {payment === "cash" && (
-          <TextField label="Amount" fullWidth type="number" border="normal" />
-        )}
-        {payment === "card" && (
-          <>
-            <TextField label="Card Number" type="number" />
-
-            <TextField label="CVV Number" type="passwors" />
-          </>
-        )}
-        <Button
-          fullWidth
-          variant="contained"
+        <Paper
           sx={{
-            mt: 3,
-            backgroundColor: "#996944",
-            "&:hover": {
-              backgroundColor: "#6e4c2c",
-            },
+            width: "300px",
+            padding: "20px",
+            borderRadius: "10px",
+            textAlign: "center",
           }}
         >
-          Submit Payment
-        </Button>
-      </Paper>
-    </Box>
+          <Typography
+            variant="h4"
+            sx={{
+              mb: 3,
+              fontWeight: "bold",
+            }}
+          >
+            Payment
+          </Typography>
+          <Typography
+            sx={{
+              fontSize: "20px",
+              mb: 2,
+            }}
+          >
+            Total Amount
+          </Typography>
+          <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
+            ₹ {totalAmount}
+          </Typography>
+          <Button
+            onClick={handlePayment}
+            sx={{
+              mt: 4,
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#0000ff",
+              color: "#fff",
+              borderRadius: "10px",
+
+              "&:hover": {
+                backgroundColor: "#000",
+              },
+            }}
+          >
+            Pay
+          </Button>
+        </Paper>
+      </Box>
+    </>
   );
 };
 

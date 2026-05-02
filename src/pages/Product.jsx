@@ -14,7 +14,6 @@ const Product = () => {
   const [slideimg, setSlideimg] = useState(0);
   const [like, setLike] = useState([]);
   const [selectedSize, setSelectedSize] = useState("");
-
   const token = localStorage.getItem("token");
 
   const getData = async () => {
@@ -42,15 +41,16 @@ const Product = () => {
   }, [id]);
 
   const handleAddToCart = async (productId) => {
-    console.log("Button clicked");
-
-    if (!token) {
-      alert("Please login first");
-      return;
-    }
+    const user = JSON.parse(localStorage.getItem("user"));
 
     if (!selectedSize) {
       alert("Please select a size");
+      return;
+    }
+
+    if (!user) {
+      alert("Please login ");
+      navigate("/login");
       return;
     }
 
@@ -157,7 +157,7 @@ const Product = () => {
                           fontSize: "25px",
                           backgroundColor:
                             selectedSize === s.size ? " black" : " #ccc",
-                            color:selectedSize===s.size?"#fff":"#000"
+                          color: selectedSize === s.size ? "#fff" : "#000",
                         }}
                       >
                         {s.size}
@@ -221,6 +221,8 @@ const Product = () => {
                 >
                   <p className="name">{item.productName}</p>
                   <p className="desc">{item.description}</p>
+                  <p className="desc"> {item.category}</p>
+
                   <div className="price">₹{item.price}</div>
                 </div>
 

@@ -8,8 +8,8 @@ import { IoIosArrowUp } from "react-icons/io";
 import HomeProducts from "./home/HomeProducts";
 
 const Home = () => {
-  const [scroll, setScroll] = useState(false);
   const [category, setCategory] = useState("");
+  const [scroll, setScroll] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -18,7 +18,9 @@ const Home = () => {
 
     window.addEventListener("scroll", handleScroll);
 
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
   }, []);
 
   const handleCategory = (value) => {
@@ -96,7 +98,7 @@ const Home = () => {
             gap: 2,
           }}
         >
-          {["all", "shirt", "pant", "tshirt"].map((item) => (
+          {["all", "shirt", "pant", "T-shirt"].map((item) => (
             <Typography
               key={item}
               onClick={() => handleCategory(item)}
@@ -259,9 +261,10 @@ const Home = () => {
       {scroll && (
         <Box
           onClick={() =>
-            document
-              .getElementById("navbar")
-              ?.scrollIntoView({ behavior: "smooth" })
+            window.scrollTo({
+              top: 0,
+              behavior: "smooth",
+            })
           }
           sx={{
             position: "fixed",
@@ -272,6 +275,7 @@ const Home = () => {
             borderRadius: "50%",
             p: 2,
             cursor: "pointer",
+            zIndex: 1000,
           }}
         >
           <IoIosArrowUp size={20} />

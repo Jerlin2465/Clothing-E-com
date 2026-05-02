@@ -76,6 +76,7 @@ export default function PrimarySearchAppBar() {
   };
 
   const handleMenuClose = () => {
+    
     setAnchorEl(null);
   };
 

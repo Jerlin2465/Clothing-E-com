@@ -66,9 +66,12 @@ const Cart = () => {
     getCart();
   };
 
-  const handleDelete = async (productId) => {
+  const handleDelete = async (item) => {
     await axios.delete("http://localhost:5000/cart/remove", {
-      data: { productId },
+      data: {
+        productId: item.productId,
+        size: item.size,
+      },
       headers: { Authorization: `Bearer ${token}` },
     });
 
@@ -98,7 +101,10 @@ const Cart = () => {
         ) : (
           <>
             {cart.map((item) => (
-              <div className="product-card-cart" key={item.productId}>
+              <div
+                className="product-card-cart"
+                key={`${item.productId}-${item.size}`}
+              >
                 <img
                   src={`http://localhost:5000/uploads/${item.image?.[0]}`}
                   alt=""
@@ -106,7 +112,7 @@ const Cart = () => {
 
                 <h3>{item.name}</h3>
                 <h4>₹{item.price}</h4>
-
+                <p> {item.size}</p>
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "10px" }}
                 >
@@ -115,9 +121,7 @@ const Cart = () => {
                   <button onClick={() => handleIncrease(item)}>+</button>
                 </div>
 
-                <button onClick={() => handleDelete(item.productId)}>
-                  Remove
-                </button>
+                <button onClick={() => handleDelete(item)}>Remove</button>
               </div>
             ))}
 
@@ -140,6 +144,14 @@ const Cart = () => {
                 <b>Total Amount:</b> ₹{getTotal()}
               </p>
               <Button
+                onClick={() =>
+                  navigate("/payment", {
+                    state: {
+                      totalAmount: getTotal(),
+                      cartItems: cart,
+                    },
+                  })
+                }
                 sx={{
                   width: "250px",
                   marginTop: "20px",
@@ -148,6 +160,7 @@ const Cart = () => {
                   color: "#fff",
                   borderRadius: "10px",
                   cursor: "pointer",
+
                   "&:hover": {
                     backgroundColor: "#0000ff",
                   },

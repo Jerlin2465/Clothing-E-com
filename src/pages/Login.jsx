@@ -51,7 +51,7 @@ const Login = () => {
         if (res.data.user.role === "admin") {
           navigate("/adminrouter");
         } else {
-          navigate("/product");
+          navigate("/");
         }
       }, 1500);
     } catch (error) {
