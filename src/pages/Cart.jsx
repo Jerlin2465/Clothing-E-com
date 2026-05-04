@@ -32,37 +32,30 @@ const Cart = () => {
 
   const handleIncrease = async (item) => {
     const newQty = item.quantity + 1;
-
     await axios.put(
       "http://localhost:5000/cart/update",
       {
         productId: item.productId,
+        size: item.size,
         quantity: newQty,
       },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
+      { headers: { Authorization: `Bearer ${token}` } },
     );
-
     getCart();
   };
 
   const handleDecrease = async (item) => {
     if (item.quantity <= 1) return;
-
     const newQty = item.quantity - 1;
-
     await axios.put(
       "http://localhost:5000/cart/update",
       {
         productId: item.productId,
+        size: item.size, 
         quantity: newQty,
       },
-      {
-        headers: { Authorization: `Bearer ${token}` },
-      },
+      { headers: { Authorization: `Bearer ${token}` } },
     );
-
     getCart();
   };
 
@@ -139,19 +132,18 @@ const Cart = () => {
               }}
             >
               <p>Total Items: {cart.length}</p>
-
               <p>
                 <b>Total Amount:</b> ₹{getTotal()}
               </p>
               <Button
-                onClick={() =>
+                onClick={() => {
                   navigate("/payment", {
                     state: {
                       totalAmount: getTotal(),
-                      cartItems: cart,
+                      cartItem: cart,
                     },
-                  })
-                }
+                  });
+                }}
                 sx={{
                   width: "250px",
                   marginTop: "20px",

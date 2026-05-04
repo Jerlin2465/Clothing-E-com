@@ -10,6 +10,7 @@ const AdminLayout = () => {
       <div className="sidebar">
         <p onClick={() => navigate("/adminrouter/adminpanel")}>Admin Panel</p>
         <p onClick={() => navigate("/adminrouter/listproduct")}>ListProduct</p>
+        <p onClick={() => navigate("/adminrouter/orderlist")}>OrderList</p>
       </div>
       <div className="outlet">
         <Outlet />

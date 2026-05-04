@@ -13,6 +13,7 @@ import AdminRouter from "./pages/admin/AdminRouter";
 import Adminpanel from "./pages/admin/Adminpanel";
 import ListProduct from "./pages/admin/ListProduct";
 import AdminLayout from "./pages/admin/AdminRouter";
+import OrderList from "./pages/admin/OrderList";
 
 function App() {
   return (
@@ -38,6 +39,7 @@ function App() {
         >
           <Route path="adminpanel" element={<Adminpanel />} />
           <Route path="listproduct" element={<ListProduct />} />
+          <Route path="orderlist" element={<OrderList />} />
         </Route>
       </Routes>
     </BrowserRouter>

@@ -192,7 +192,11 @@ const Product = () => {
           {products
             .filter((item) => item._id !== id)
             .map((item) => (
-              <div className="product-pro-card" key={item._id}>
+              <div
+                className="product-pro-card"
+                key={item._id}
+                onClick={() => navigate(`/product/${item._id}`)}
+              >
                 <div className="image-box">
                   <span className="badge">{item.gender}</span>
 
@@ -215,10 +219,7 @@ const Product = () => {
                   </span>
                 </div>
 
-                <div
-                  className="product-pro-text"
-                  onClick={() => navigate(`/product/${item._id}`)}
-                >
+                <div className="product-pro-text">
                   <p className="name">{item.productName}</p>
                   <p className="desc">{item.description}</p>
                   <p className="desc"> {item.category}</p>
@@ -227,9 +228,7 @@ const Product = () => {
                 </div>
 
                 <div className="bottom">
-                  <div onClick={() => navigate(`/product/${item._id}`)}>
-                    View Details →
-                  </div>
+                  <div>View Details →</div>
                 </div>
               </div>
             ))}
