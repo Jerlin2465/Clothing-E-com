@@ -19,13 +19,13 @@ const Product = () => {
   const getData = async () => {
     try {
       const allProducts = await axios.get(
-        `${import.meta.env.VITE_API_URL}/get-product/get-product`,
+        `${import.meta.env.VITE_API_URL}/get-product`,
       );
       setProducts(allProducts.data);
 
       if (id) {
         const single = await axios.get(
-          `${import.meta.env.VITE_API_URL}/get-product/get-product/${id}`,
+          `${import.meta.env.VITE_API_URL}/get-product/${id}`,
         );
         setProduct(single.data);
       }
