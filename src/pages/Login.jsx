@@ -70,7 +70,7 @@ const Login = () => {
   return (
     <Box
       sx={{
-        height: "89vh",
+        height: "100vh",
         width: "100%",
         backgroundImage: `url(${loginimage})`,
         backgroundSize: "cover",
@@ -78,7 +78,6 @@ const Login = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        mt: "70px",
       }}
     >
       <form onSubmit={handleSubmit}>
