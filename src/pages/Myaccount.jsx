@@ -16,7 +16,7 @@ const Myaccount = () => {
     try {
       const token = localStorage.getItem("token");
 
-      console.log("Token:", token); // ✅ Add this to debug
+      console.log("Token:", token); 
 
       if (!token) {
         console.log("No token found in localStorage");

@@ -14,6 +14,7 @@ import Adminpanel from "./pages/admin/Adminpanel";
 import ListProduct from "./pages/admin/ListProduct";
 import AdminLayout from "./pages/admin/AdminRouter";
 import OrderList from "./pages/admin/OrderList";
+import Notfound from "./pages/Notfound";
 
 function App() {
   return (
@@ -41,7 +42,7 @@ function App() {
           <Route path="listproduct" element={<ListProduct />} />
           <Route path="orderlist" element={<OrderList />} />
         </Route>
-        <Route path="*" element={<NotFound />} />
+        <Route path="*" element={<Notfound/>} />
       </Routes>
     </BrowserRouter>
   );
