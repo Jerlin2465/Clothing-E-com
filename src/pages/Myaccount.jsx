@@ -14,11 +14,24 @@ const Myaccount = () => {
 
   const getUser = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/getdetail`, {
-        withCredentials: true,
-      });
+      const token = localStorage.getItem("token");
 
-      console.log(res.data);
+      console.log("Token:", token); // ✅ Add this to debug
+
+      if (!token) {
+        console.log("No token found in localStorage");
+        return;
+      }
+
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/getdetail`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        },
+      );
+
       setLoginDetalis(res.data.user);
     } catch (error) {
       console.log(error.response?.data);
@@ -31,9 +44,12 @@ const Myaccount = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/logout`, {
-        withCredentials: true,
-      });
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/api/logout`,
+        {
+          withCredentials: true,
+        },
+      );
       localStorage.removeItem("user");
       setMessage(res.data.message);
       setType("success");
@@ -87,7 +103,7 @@ const Myaccount = () => {
               onClick={handleLogout}
             >
               LogOut
-            </Button>{" "}
+            </Button>
           </>
         ) : (
           <>
