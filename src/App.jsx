@@ -41,6 +41,7 @@ function App() {
           <Route path="listproduct" element={<ListProduct />} />
           <Route path="orderlist" element={<OrderList />} />
         </Route>
+        <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
   );
