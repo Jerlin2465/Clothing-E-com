@@ -79,15 +79,12 @@ const Product = () => {
   const handleToggle = async (id) => {
     try {
       if (like.includes(id)) {
-        await axios.delete(
-          `${import.meta.env.VITE_API_URL}/wishlist/remove`,
-          {
-            data: { productId: id },
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
+        await axios.delete(`${import.meta.env.VITE_API_URL}/wishlist/remove`, {
+          data: { productId: id },
+          headers: {
+            Authorization: `Bearer ${token}`,
           },
-        );
+        });
 
         setLike((prev) => prev.filter((item) => item !== id));
       } else {
