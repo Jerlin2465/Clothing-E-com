@@ -14,15 +14,6 @@ const Myaccount = () => {
 
   const getUser = async () => {
     try {
-      const token = localStorage.getItem("token");
-
-      console.log("Token:", token); 
-
-      if (!token) {
-        console.log("No token found in localStorage");
-        return;
-      }
-
       const res = await axios.get(
         `${import.meta.env.VITE_API_URL}/api/getdetail`,
         {
@@ -31,7 +22,7 @@ const Myaccount = () => {
           },
         },
       );
-
+      console.log(res.data);
       setLoginDetalis(res.data.user);
     } catch (error) {
       console.log(error.response?.data);
