@@ -5,6 +5,10 @@ import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import { FaHeart } from "react-icons/fa";
 
+// ✅ Single source of truth for API URL
+const API_URL =
+  import.meta.env.VITE_API_URL || "https://clothing-backend-volk.onrender.com";
+
 const Product = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -18,15 +22,11 @@ const Product = () => {
 
   const getData = async () => {
     try {
-      const allProducts = await axios.get(
-        `${import.meta.env.VITE_API_URL}/get-product`,
-      );
+      const allProducts = await axios.get(`${API_URL}/get-product`);
       setProducts(allProducts.data);
 
       if (id) {
-        const single = await axios.get(
-          `${import.meta.env.VITE_API_URL}/get-product/${id}`,
-        );
+        const single = await axios.get(`${API_URL}/get-product/${id}`);
         setProduct(single.data);
       }
     } catch (error) {
@@ -49,56 +49,38 @@ const Product = () => {
     }
 
     if (!user) {
-      alert("Please login ");
+      alert("Please login");
       navigate("/login");
       return;
     }
 
     try {
       await axios.post(
-        `${import.meta.env.VITE_API_URL}/cart/add`,
-        {
-          productId,
-          size: selectedSize,
-        },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        },
+        `${API_URL}/cart/add`,
+        { productId, size: selectedSize },
+        { headers: { Authorization: `Bearer ${token}` } },
       );
-
-      console.log("Added to cart");
       navigate("/cart");
     } catch (error) {
       console.log(error.response?.data || error.message);
     }
   };
 
-  //  WISHLIST
-  const handleToggle = async (id) => {
+  const handleToggle = async (itemId) => {
     try {
-      if (like.includes(id)) {
-        await axios.delete(`${import.meta.env.VITE_API_URL}/wishlist/remove`, {
-          data: { productId: id },
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+      if (like.includes(itemId)) {
+        await axios.delete(`${API_URL}/wishlist/remove`, {
+          data: { productId: itemId },
+          headers: { Authorization: `Bearer ${token}` },
         });
-
-        setLike((prev) => prev.filter((item) => item !== id));
+        setLike((prev) => prev.filter((i) => i !== itemId));
       } else {
         await axios.post(
-          `${import.meta.env.VITE_API_URL}/wishlist/add`,
-          { productId: id },
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          },
+          `${API_URL}/wishlist/add`,
+          { productId: itemId },
+          { headers: { Authorization: `Bearer ${token}` } },
         );
-
-        setLike((prev) => [...prev, id]);
+        setLike((prev) => [...prev, itemId]);
       }
     } catch (error) {
       console.log(error.response?.data || error.message);
@@ -115,7 +97,7 @@ const Product = () => {
                 {product.image?.map((img, i) => (
                   <img
                     key={i}
-                    src={`${import.meta.env.VITE_API_URL}/uploads/${img}`}
+                    src={`${API_URL}/uploads/${img}`}
                     onClick={() => setSlideimg(i)}
                     style={{
                       cursor: "pointer",
@@ -129,7 +111,7 @@ const Product = () => {
 
               <div>
                 <img
-                  src={`${import.meta.env.VITE_API_URL}/uploads/${product.image?.[slideimg]}`}
+                  src={`${API_URL}/uploads/${product.image?.[slideimg]}`}
                   alt=""
                 />
               </div>
@@ -156,7 +138,7 @@ const Product = () => {
                           borderRadius: "10px",
                           fontSize: "25px",
                           backgroundColor:
-                            selectedSize === s.size ? " black" : " #ccc",
+                            selectedSize === s.size ? "black" : "#ccc",
                           color: selectedSize === s.size ? "#fff" : "#000",
                         }}
                       >
@@ -184,7 +166,6 @@ const Product = () => {
         </div>
       )}
 
-      {/* more product */}
       <div className="product-pro-page">
         {id && <h2 style={{ margin: "20px" }}>More Products</h2>}
 
@@ -201,14 +182,17 @@ const Product = () => {
                   <span className="badge">{item.gender}</span>
 
                   <img
-                    src={`${import.meta.env.VITE_API_URL}/uploads/${item.image?.[0]}`}
+                    src={`${API_URL}/uploads/${item.image?.[0]}`}
                     alt="product"
                   />
 
                   <span
                     className="badg-1"
                     style={{ cursor: "pointer", marginLeft: "20px" }}
-                    onClick={() => handleToggle(item._id)}
+                    onClick={(e) => {
+                      e.stopPropagation(); // ✅ Prevent card click when clicking heart
+                      handleToggle(item._id);
+                    }}
                   >
                     <FaHeart
                       style={{
@@ -222,8 +206,7 @@ const Product = () => {
                 <div className="product-pro-text">
                   <p className="name">{item.productName}</p>
                   <p className="desc">{item.description}</p>
-                  <p className="desc"> {item.category}</p>
-
+                  <p className="desc">{item.category}</p>
                   <div className="price">₹{item.price}</div>
                 </div>
 
