@@ -19,13 +19,13 @@ const Product = () => {
   const getData = async () => {
     try {
       const allProducts = await axios.get(
-        "http://localhost:5000/get-product/get-product",
+        `${import.meta.env.VITE_API_URL}/get-product/get-product`,
       );
       setProducts(allProducts.data);
 
       if (id) {
         const single = await axios.get(
-          `http://localhost:5000/get-product/get-product/${id}`,
+          `${import.meta.env.VITE_API_URL}/get-product/get-product/${id}`,
         );
         setProduct(single.data);
       }
@@ -56,7 +56,7 @@ const Product = () => {
 
     try {
       await axios.post(
-        "http://localhost:5000/cart/add",
+        `${import.meta.env.VITE_API_URL}/cart/add`,
         {
           productId,
           size: selectedSize,
@@ -79,17 +79,20 @@ const Product = () => {
   const handleToggle = async (id) => {
     try {
       if (like.includes(id)) {
-        await axios.delete("http://localhost:5000/wishlist/remove", {
-          data: { productId: id },
-          headers: {
-            Authorization: `Bearer ${token}`,
+        await axios.delete(
+          `${import.meta.env.VITE_API_URL}/wishlist/remove`,
+          {
+            data: { productId: id },
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
           },
-        });
+        );
 
         setLike((prev) => prev.filter((item) => item !== id));
       } else {
         await axios.post(
-          "http://localhost:5000/wishlist/add",
+          `${import.meta.env.VITE_API_URL}/wishlist/add`,
           { productId: id },
           {
             headers: {
@@ -115,7 +118,7 @@ const Product = () => {
                 {product.image?.map((img, i) => (
                   <img
                     key={i}
-                    src={`http://localhost:5000/uploads/${img}`}
+                    src={`${import.meta.env.VITE_API_URL}/uploads/${img}`}
                     onClick={() => setSlideimg(i)}
                     style={{
                       cursor: "pointer",
@@ -129,7 +132,7 @@ const Product = () => {
 
               <div>
                 <img
-                  src={`http://localhost:5000/uploads/${product.image?.[slideimg]}`}
+                  src={`${import.meta.env.VITE_API_URL}/uploads/${product.image?.[slideimg]}`}
                   alt=""
                 />
               </div>
@@ -201,7 +204,7 @@ const Product = () => {
                   <span className="badge">{item.gender}</span>
 
                   <img
-                    src={`http://localhost:5000/uploads/${item.image?.[0]}`}
+                    src={`${import.meta.env.VITE_API_URL}/uploads/${item.image?.[0]}`}
                     alt="product"
                   />
 

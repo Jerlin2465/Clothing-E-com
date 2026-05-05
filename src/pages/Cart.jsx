@@ -12,7 +12,7 @@ const Cart = () => {
 
   const getCart = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/cart", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/cart`, {
         headers: { Authorization: `Bearer ${token}` },
       });
 
@@ -33,7 +33,7 @@ const Cart = () => {
   const handleIncrease = async (item) => {
     const newQty = item.quantity + 1;
     await axios.put(
-      "http://localhost:5000/cart/update",
+      "${import.meta.env.VITE_API_URL}/cart/update",
       {
         productId: item.productId,
         size: item.size,
@@ -48,7 +48,7 @@ const Cart = () => {
     if (item.quantity <= 1) return;
     const newQty = item.quantity - 1;
     await axios.put(
-      "http://localhost:5000/cart/update",
+      `${import.meta.env.VITE_API_URL}/cart/update`,
       {
         productId: item.productId,
         size: item.size, 
@@ -60,7 +60,7 @@ const Cart = () => {
   };
 
   const handleDelete = async (item) => {
-    await axios.delete("http://localhost:5000/cart/remove", {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/cart/remove`, {
       data: {
         productId: item.productId,
         size: item.size,
@@ -99,7 +99,7 @@ const Cart = () => {
                 key={`${item.productId}-${item.size}`}
               >
                 <img
-                  src={`http://localhost:5000/uploads/${item.image?.[0]}`}
+                  src={`${import.meta.env.VITE_API_URL}/uploads/${item.image?.[0]}`}
                   alt=""
                 />
 

@@ -14,7 +14,7 @@ const HomeProducts = ({ category }) => {
   const getProduct = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/get-product/get-product",
+        `${import.meta.env.VITE_API_URL}/get-product/get-product`,
         {
           params: {
             category: category,
@@ -35,7 +35,7 @@ const HomeProducts = ({ category }) => {
   const handleToggle = async (id) => {
     try {
       if (like.includes(id)) {
-        await axios.delete("http://localhost:5000/wishlist/remove", {
+        await axios.delete(`${import.meta.env.VITE_API_URL}/wishlist/remove`, {
           data: { productId: id },
           headers: {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -45,7 +45,7 @@ const HomeProducts = ({ category }) => {
         setLike((prev) => prev.filter((item) => item !== id));
       } else {
         await axios.post(
-          "http://localhost:5000/wishlist/add",
+          `${import.meta.env.VITE_API_URL}/wishlist/add`,
           { productId: id },
           {
             headers: {
@@ -74,7 +74,7 @@ const HomeProducts = ({ category }) => {
                 <span className="badge">{item.gender}</span>
 
                 <img
-                  src={`http://localhost:5000/uploads/${item.image?.[currentIndex]}`}
+                  src={`${import.meta.env.VITE_API_URL}/uploads/${item.image?.[currentIndex]}`}
                   alt="product"
                 />
 

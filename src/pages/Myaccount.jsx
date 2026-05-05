@@ -14,7 +14,7 @@ const Myaccount = () => {
 
   const getUser = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/getdetail", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/getdetail`, {
         withCredentials: true,
       });
 
@@ -31,7 +31,7 @@ const Myaccount = () => {
 
   const handleLogout = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/api/logout", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/logout`, {
         withCredentials: true,
       });
       localStorage.removeItem("user");

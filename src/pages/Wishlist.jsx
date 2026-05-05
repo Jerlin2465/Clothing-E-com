@@ -10,7 +10,7 @@ const Wishlist = () => {
 
   const getWishlist = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/wishlist", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/wishlist`, {
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
         },
@@ -28,7 +28,7 @@ const Wishlist = () => {
 
   const handleDelete = async (productId) => {
     try {
-      await axios.delete("http://localhost:5000/wishlist/remove", {
+      await axios.delete(`${import.meta.env.VITE_API_URL}/wishlist/remove`, {
         data: { productId },
         headers: {
           Authorization: `Bearer ${localStorage.getItem("token")}`,
@@ -93,7 +93,7 @@ const Wishlist = () => {
                     <span className="badge">{product.gender}</span>
 
                     <img
-                      src={`http://localhost:5000/uploads/${product.image?.[0]}`}
+                      src={`${VITE_API_URL}/uploads/${product.image?.[0]}`}
                       alt="product"
                     />
 

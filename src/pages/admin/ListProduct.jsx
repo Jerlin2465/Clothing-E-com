@@ -12,7 +12,7 @@ const ListProduct = () => {
   const getProduct = async () => {
     try {
       const res = await axios.get(
-        "http://localhost:5000/get-product/get-product",
+        `${import.meta.env.VITE_API_URL}/get-product/get-product`,
         {
           withCredentials: true,
         },
@@ -66,7 +66,7 @@ const ListProduct = () => {
       });
 
       await axios.put(
-        `http://localhost:5000/get-product/update-product/${id}`,
+        `${import.meta.env.VITE_API_URL}/get-product/update-product/${id}`,
         formData,
       );
 
@@ -89,7 +89,7 @@ const ListProduct = () => {
   const handledelete = async (id) => {
     try {
       await axios.delete(
-        `http://localhost:5000/get-product/delete-product/${id}`,
+        `${import.meta.env.VITE_API_URL}/get-product/delete-product/${id}`,
       );
       alert("Delete Product Successfull");
       setProduct();
@@ -117,7 +117,7 @@ const ListProduct = () => {
                             newImg[i]
                               ? URL.createObjectURL(newImg[i])
                               : editData.image?.[i]
-                                ? `http://localhost:5000/uploads/${editData.image[i]}`
+                                ? `${import.meta.env.VITE_API_URL}/uploads/${editData.image[i]}`
                                 : "https://via.placeholder.com/70"
                           }
                           style={{
@@ -147,7 +147,7 @@ const ListProduct = () => {
                   <>
                     <div>
                       <img
-                        src={`http://localhost:5000/uploads/${
+                        src={`${import.meta.env.VITE_API_URL}/uploads/${
                           item.image?.[currentIndex]
                         }`}
                         alt="main"
@@ -163,7 +163,7 @@ const ListProduct = () => {
                         {item.image?.map((img, i) => (
                           <img
                             key={i}
-                            src={`http://localhost:5000/uploads/${img}`}
+                            src={`${import.meta.env.VITE_API_URL}/uploads/${img}`}
                             onClick={() =>
                               setSlideimg((prev) => ({
                                 ...prev,

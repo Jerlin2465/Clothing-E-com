@@ -10,7 +10,7 @@ const OrderList = () => {
 
   const getOrders = async () => {
     try {
-      const res = await axios.get("http://localhost:5000/order/all-orders");
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/order/all-orders`);
       const data = res.data.orders || [];
       setOrders(data);
       setRows(flattenOrders(data));

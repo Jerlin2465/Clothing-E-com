@@ -36,7 +36,7 @@ const PaymentForm = () => {
     try {
       console.log("Step 1 — totalAmount:", totalAmount);
 
-      const { data } = await axios.post("http://localhost:5000/payment/order", {
+      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/payment/order`, {
         amount: totalAmount,
       });
 
@@ -53,7 +53,7 @@ const PaymentForm = () => {
 
             // Send totalAmount so paymentModel can save it
             const verify = await axios.post(
-              "http://localhost:5000/payment/verify",
+              `${import.meta.env.VITE_API_URL}/payment/verify`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
@@ -85,14 +85,14 @@ const PaymentForm = () => {
             console.log("Step 5 — placing order:", orderData);
 
             const orderRes = await axios.post(
-              "http://localhost:5000/order/place-order",
+              `${import.meta.env.VITE_API_URL}/order/place-order`,
               orderData,
             );
 
             if (orderRes.data.success) {
               //  Clear cart after order saved successfully
               try {
-                await axios.delete("http://localhost:5000/cart/clear", {
+                await axios.delete(`${import.meta.env.VITE_API_URL}/cart/clear`, {
                   headers: { Authorization: `Bearer ${token}` },
                 });
                 console.log("Cart cleared");

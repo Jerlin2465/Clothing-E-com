@@ -71,7 +71,7 @@ const Adminpanel = () => {
     formData.append("size", JSON.stringify(size));
     try {
       const res = await axios.post(
-        "http://localhost:5000/get-product/upload",
+        `${import.meta.env.VITE_API_URL}/get-product/upload`,
         formData,
         { withCredentials: true },
       );
