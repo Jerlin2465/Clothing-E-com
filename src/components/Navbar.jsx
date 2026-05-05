@@ -9,11 +9,11 @@ import InputBase from "@mui/material/InputBase";
 import Badge from "@mui/material/Badge";
 import MenuItem from "@mui/material/MenuItem";
 import Menu from "@mui/material/Menu";
+import Drawer from "@mui/material/Drawer";
 
 import SearchIcon from "@mui/icons-material/Search";
 import AccountCircle from "@mui/icons-material/AccountCircle";
-import MailIcon from "@mui/icons-material/Mail";
-import NotificationsIcon from "@mui/icons-material/Notifications";
+import MenuIcon from "@mui/icons-material/Menu";
 
 import { ImCart } from "react-icons/im";
 import { FaRegHeart } from "react-icons/fa";
@@ -22,6 +22,7 @@ import { useNavigate } from "react-router-dom";
 import { useState } from "react";
 
 /* ================= SEARCH ================= */
+
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -29,13 +30,10 @@ const Search = styled("div")(({ theme }) => ({
   color: "#000",
   "&:hover": {
     backgroundColor: "#ebe7e7",
-    color: "#000",
   },
   marginRight: theme.spacing(2),
-  marginLeft: 0,
   width: "100%",
   [theme.breakpoints.up("sm")]: {
-    marginLeft: theme.spacing(3),
     width: "auto",
   },
 }));
@@ -44,7 +42,6 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
   padding: theme.spacing(0, 2),
   height: "100%",
   position: "absolute",
-  pointerEvents: "none",
   display: "flex",
   alignItems: "center",
   justifyContent: "center",
@@ -53,9 +50,8 @@ const SearchIconWrapper = styled("div")(({ theme }) => ({
 const StyledInputBase = styled(InputBase)(({ theme }) => ({
   color: "inherit",
   "& .MuiInputBase-input": {
-    padding: theme.spacing(1, 1, 1, 0),
+    padding: theme.spacing(1),
     paddingLeft: `calc(1em + ${theme.spacing(4)})`,
-    transition: theme.transitions.create("width"),
     width: "100%",
     [theme.breakpoints.up("md")]: {
       width: "20ch",
@@ -65,9 +61,11 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 export default function PrimarySearchAppBar() {
   const navigate = useNavigate();
+
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [anchorEl, setAnchorEl] = useState(null);
+  const [openDrawer, setOpenDrawer] = useState(false);
 
   const isMenuOpen = Boolean(anchorEl);
 
@@ -76,11 +74,10 @@ export default function PrimarySearchAppBar() {
   };
 
   const handleMenuClose = () => {
-    
     setAnchorEl(null);
   };
 
-  const menuId = "primary-search-account-menu";
+  /* ================= PROFILE MENU ================= */
 
   const renderMenu = (
     <Menu anchorEl={anchorEl} open={isMenuOpen} onClose={handleMenuClose}>
@@ -90,7 +87,7 @@ export default function PrimarySearchAppBar() {
           navigate("/Myaccount");
         }}
       >
-        My account
+        My Account
       </MenuItem>
 
       <MenuItem
@@ -125,131 +122,180 @@ export default function PrimarySearchAppBar() {
           p: 1,
         }}
       >
-        <Toolbar id="navbar">
-          {/* LOGO */}
-          <Typography
-            variant="h6"
-            noWrap
-            sx={{ display: { xs: "none", sm: "block" } }}
-          >
-            Jerry
-          </Typography>
+        <Toolbar sx={{ justifyContent: "space-between" }}>
+          {/* LEFT SIDE */}
+          <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+            {/* MOBILE MENU BUTTON */}
+            <Box sx={{ display: { xs: "flex", md: "none" } }}>
+              <IconButton
+                color="inherit"
+                onClick={() => setOpenDrawer(true)}
+              >
+                <MenuIcon />
+              </IconButton>
+            </Box>
+
+            {/* LOGO */}
+            <Typography
+              variant="h6"
+              sx={{
+                cursor: "pointer",
+                fontWeight: "bold",
+              }}
+              onClick={() => navigate("/")}
+            >
+              Jerry
+            </Typography>
+          </Box>
 
           {/* SEARCH */}
-          <Search>
+          <Search
+            sx={{
+              display: { xs: "none", sm: "block" },
+            }}
+          >
             <SearchIconWrapper>
               <SearchIcon />
             </SearchIconWrapper>
+
             <StyledInputBase placeholder="Search…" />
           </Search>
 
+          {/* DESKTOP MENU */}
           <Box
             sx={{
-              flexGrow: 1,
               display: { xs: "none", md: "flex" },
-              gap: 8,
+              gap: 4,
               alignItems: "center",
-              justifyContent: "end",
-              mr: 3,
             }}
           >
             <Typography
+              sx={{ cursor: "pointer" }}
               onClick={() => navigate("/")}
-              sx={{
-                p: 1,
-                borderRadius: 50,
-                "&:hover": { backgroundColor: "#000" },
-              }}
             >
               Home
             </Typography>
+
             <Typography
+              sx={{ cursor: "pointer" }}
               onClick={() => navigate("/product")}
-              sx={{
-                p: 1,
-                borderRadius: 50,
-                "&:hover": { backgroundColor: "#000" },
-              }}
             >
               Product
             </Typography>
+
             <Typography
+              sx={{ cursor: "pointer" }}
               onClick={() =>
                 document
                   .querySelector(".about")
                   ?.scrollIntoView({ behavior: "smooth" })
               }
-              sx={{
-                p: 1,
-                borderRadius: 50,
-                "&:hover": { backgroundColor: "#000" },
-              }}
             >
               About
             </Typography>
-          </Box>
 
-          <Box sx={{ display: { xs: "none", md: "flex" }, gap: 3 }}>
-            <IconButton color="inherit">
-              <Badge
-                badgeContent={0}
-                color="error"
-                onClick={() => navigate("/cart")}
-                sx={{
-                  mr: 2,
-                  p: 2,
-                  borderRadius: 50,
-                  "&:hover": { backgroundColor: "#000", color: "#fff" },
-                }}
-              >
+            {/* CART */}
+            <IconButton color="inherit" onClick={() => navigate("/cart")}>
+              <Badge badgeContent={0} color="error">
                 <ImCart />
               </Badge>
             </IconButton>
 
+            {/* WISHLIST */}
             <IconButton
               color="inherit"
               onClick={() => navigate("/wishlist")}
-              sx={{
-                mr: 2,
-                p: "0 15px 0 15px",
-                borderRadius: "50%",
-                "&:hover": { backgroundColor: "#000", color: "#fff" },
-              }}
             >
               <FaRegHeart />
             </IconButton>
 
+            {/* PROFILE */}
             <IconButton
-              onClick={handleProfileMenuOpen}
               color="inherit"
-              sx={{
-                mr: 2,
-                p: 2,
-                borderRadius: 50,
-                "&:hover": { backgroundColor: "#000", color: "#fff" },
-              }}
+              onClick={handleProfileMenuOpen}
             >
               <AccountCircle />
             </IconButton>
           </Box>
 
-          {/* MOBILE / TABLET USER ICON (REPLACED 3 DOTS) */}
+          {/* MOBILE PROFILE */}
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
             <IconButton
-              onClick={handleProfileMenuOpen}
               color="inherit"
-              sx={{
-                "&:hover": {
-                  backgroundColor: "#000",
-                  color: "#fff",
-                },
-              }}
+              onClick={handleProfileMenuOpen}
             >
               <AccountCircle />
             </IconButton>
           </Box>
         </Toolbar>
       </AppBar>
+
+      {/* MOBILE DRAWER MENU */}
+      <Drawer
+        anchor="left"
+        open={openDrawer}
+        onClose={() => setOpenDrawer(false)}
+      >
+        <Box
+          sx={{
+            width: 150,
+            p: 2,
+            display: "flex",
+            flexDirection: "column",
+            gap: 3,
+            backgroundColor:"#1a237e",
+            color:"#fff",
+            padding:"10px"
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{ fontWeight: "bold" }}
+          >
+            Jerry
+          </Typography>
+
+          <Typography
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/");
+              setOpenDrawer(false);
+            }}
+          >
+            Home
+          </Typography>
+
+          <Typography
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/product");
+              setOpenDrawer(false);
+            }}
+          >
+            Product
+          </Typography>
+
+          <Typography
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/wishlist");
+              setOpenDrawer(false);
+            }}
+          >
+            Wishlist
+          </Typography>
+
+          <Typography
+            sx={{ cursor: "pointer" }}
+            onClick={() => {
+              navigate("/cart");
+              setOpenDrawer(false);
+            }}
+          >
+            Cart
+          </Typography>
+        </Box>
+      </Drawer>
 
       {renderMenu}
     </Box>

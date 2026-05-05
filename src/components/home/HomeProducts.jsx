@@ -14,7 +14,7 @@ const HomeProducts = ({ category }) => {
   const getProduct = async () => {
     try {
       const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/get-product/get-product`,
+        `${import.meta.env.VITE_API_URL}/get-product`,
         {
           params: {
             category: category,
