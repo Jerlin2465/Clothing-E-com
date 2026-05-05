@@ -34,9 +34,13 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(`${import.meta.env.VITE_API_URL}/api/login`, form, {
-        withCredentials: true,
-      });
+      const res = await axios.post(
+        `${import.meta.env.VITE_API_URL}/api/login`,
+        form,
+        {
+          withCredentials: true,
+        },
+      );
 
       console.log("LOGIN RESPONSE:", res.data);
 
@@ -74,6 +78,7 @@ const Login = () => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
+        mt: "70px",
       }}
     >
       <form onSubmit={handleSubmit}>
