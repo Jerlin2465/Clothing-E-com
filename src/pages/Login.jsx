@@ -14,6 +14,9 @@ import axios from "axios";
 import { InputAdornment, IconButton } from "@mui/material";
 import { GrFormViewHide, GrFormView } from "react-icons/gr";
 
+const API_URL =
+  import.meta.env.VITE_API_URL || "https://clothing-backend-volk.onrender.com";
+
 const Login = () => {
   const navigate = useNavigate();
   const [open, setOpen] = useState(false);
@@ -34,13 +37,9 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/login`,
-        form,
-        {
-          withCredentials: true,
-        },
-      );
+      const res = await axios.post(`${API_URL}/api/login`, form, {
+        withCredentials: true,
+      });
 
       console.log("LOGIN RESPONSE:", res.data);
 

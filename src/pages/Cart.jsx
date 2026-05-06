@@ -33,7 +33,7 @@ const Cart = () => {
   const handleIncrease = async (item) => {
     const newQty = item.quantity + 1;
     await axios.put(
-      "${import.meta.env.VITE_API_URL}/cart/update",
+      `${import.meta.env.VITE_API_URL}/cart/update`,
       {
         productId: item.productId,
         size: item.size,
@@ -51,7 +51,7 @@ const Cart = () => {
       `${import.meta.env.VITE_API_URL}/cart/update`,
       {
         productId: item.productId,
-        size: item.size, 
+        size: item.size,
         quantity: newQty,
       },
       { headers: { Authorization: `Bearer ${token}` } },

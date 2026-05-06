@@ -17,8 +17,7 @@ const Myaccount = () => {
 
   const getUser = async () => {
     try {
-      const token = localStorage.getItem("token"); 
-
+      const token = localStorage.getItem("token");
       if (!token) {
         console.log("No token found");
         return;
@@ -26,16 +25,19 @@ const Myaccount = () => {
 
       const res = await axios.get(`${API_URL}/api/getdetail`, {
         headers: {
-          Authorization: `Bearer ${token}`, 
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      console.log(res.data);
       setLoginDetalis(res.data.user);
     } catch (error) {
-      console.log(error.response?.data);
+      console.log("getUser error:", error.response?.data || error.message);
     }
   };
+
+  useEffect(() => {
+    getUser();
+  }, []);
 
   useEffect(() => {
     getUser();
@@ -44,7 +46,7 @@ const Myaccount = () => {
   const handleLogout = async () => {
     try {
       localStorage.removeItem("user");
-      localStorage.removeItem("token"); 
+      localStorage.removeItem("token");
 
       setMessage("Logged out successfully");
       setType("success");
