@@ -39,10 +39,6 @@ const Myaccount = () => {
     getUser();
   }, []);
 
-  useEffect(() => {
-    getUser();
-  }, []);
-
   const handleLogout = async () => {
     try {
       localStorage.removeItem("user");
