@@ -1,33 +1,136 @@
 .admin-container {
   display: flex;
+  width: 100%;
+  min-height: 100vh;
 }
 
+/* Sidebar */
 .sidebar {
-  width: 17%;
+  width: 260px;
   background-color: #2834b4;
   color: white;
   padding: 20px;
   position: fixed;
   top: 70px;
   left: 0;
-  height: 100vh;
+  height: calc(100vh - 70px);
+  overflow-y: auto;
+  transition: all 0.3s ease;
+  z-index: 1000;
 }
 
+/* Sidebar Menu */
 .sidebar p {
   cursor: pointer;
-  padding: 12px;
+  padding: 12px 14px;
   border-radius: 8px;
   margin-bottom: 10px;
   transition: 0.3s;
-  font-size: 18px;
+  font-size: 17px;
 }
 
 .sidebar p:hover {
-  background-color: #f5f6fa86;
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .sidebar .active {
   background-color: #1d2599;
+}
+
+/* Outlet */
+.outlet {
+  margin-left: 260px;
+  width: 100%;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* Menu Button */
+.menu-btn {
+  display: none;
+}
+
+/* Tablet */
+@media (max-width: 1024px) {
+  .sidebar {
+    width: 220px;
+  }
+
+  .outlet {
+    margin-left: 220px;
+  }
+
+  .sidebar p {
+    font-size: 15px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+  /* Menu Button */
+  .menu-btn {
+    display: block;
+    position: fixed;
+    top: 12px;
+    left: 12px;
+    z-index: 1200;
+    background: #2834b4;
+    color: white;
+    border: none;
+    padding: 10px 14px;
+    border-radius: 8px;
+    font-size: 22px;
+    cursor: pointer;
+  }
+
+  /* Sidebar */
+  .sidebar {
+    width: 240px;
+    left: -240px;
+    top: 0;
+    height: 100vh;
+    padding-top: 70px;
+  }
+
+  .sidebar.open {
+    left: 0;
+  }
+
+  /* Overlay */
+  .sidebar-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 999;
+  }
+
+  /* Outlet */
+  .outlet {
+    margin-left: 0;
+    width: 100%;
+    padding: 70px 10px 10px;
+  }
+
+  .sidebar p {
+    font-size: 15px;
+    padding: 12px;
+  }
+}
+
+/* Small Mobile */
+@media (max-width: 480px) {
+  .sidebar {
+    width: 210px;
+  }
+
+  .sidebar p {
+    font-size: 14px;
+  }
+
+  .menu-btn {
+    font-size: 20px;
+    padding: 8px 12px;
+  }
 }
 
 .outlet {

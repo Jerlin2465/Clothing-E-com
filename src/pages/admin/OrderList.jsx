@@ -1,6 +1,28 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 
+import {
+  Box,
+  Paper,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+  TextField,
+  Select,
+  MenuItem,
+  Grid,
+  Chip,
+  Avatar,
+  CircularProgress,
+  useMediaQuery,
+} from "@mui/material";
+
+import { useTheme } from "@mui/material/styles";
+
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
   const [rows, setRows] = useState([]);
@@ -8,10 +30,17 @@ const OrderList = () => {
   const [payFilter, setPayFilter] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+
   const getOrders = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/order/all-orders`);
+      const res = await axios.get(
+        `${import.meta.env.VITE_API_URL}/order/all-orders`,
+      );
+
       const data = res.data.orders || [];
+
       setOrders(data);
       setRows(flattenOrders(data));
     } catch (error) {
@@ -23,6 +52,7 @@ const OrderList = () => {
 
   const flattenOrders = (orders) => {
     const result = [];
+
     for (const order of orders) {
       for (const item of order.products || []) {
         result.push({
@@ -34,6 +64,7 @@ const OrderList = () => {
           quantity: item.quantity,
           totalAmount: order.totalAmount,
           paymentStatus: order.paymentStatus,
+
           date: order.createdAt
             ? new Date(order.createdAt).toLocaleDateString("en-IN", {
                 day: "2-digit",
@@ -44,6 +75,7 @@ const OrderList = () => {
         });
       }
     }
+
     return result;
   };
 
@@ -53,16 +85,23 @@ const OrderList = () => {
 
   const filtered = rows.filter((r) => {
     const q = search.toLowerCase();
+
     const matchQ =
       !q ||
       r.orderId.toLowerCase().includes(q) ||
       r.userName.toLowerCase().includes(q) ||
       r.productName.toLowerCase().includes(q);
+
     const matchP = !payFilter || r.paymentStatus === payFilter;
+
     return matchQ && matchP;
   });
 
-  const totalRevenue = orders.reduce((s, o) => s + o.totalAmount, 0);
+  const totalRevenue = orders.reduce(
+    (sum, order) => sum + order.totalAmount,
+    0,
+  );
+
   const paidCount = orders.filter((o) => o.paymentStatus === "Paid").length;
 
   const initials = (name) =>
@@ -74,255 +113,297 @@ const OrderList = () => {
       .toUpperCase();
 
   return (
-    <div style={{ padding: "24px", fontFamily: "sans-serif" }}>
+    <Box
+      sx={{
+        width: "100%",
+        p: isMobile ? 1.5 : 3,
+        boxSizing: "border-box",
+        overflow: "hidden",
+      }}
+    >
       {/* Header */}
-      <div
-        style={{
+      <Box
+        sx={{
           display: "flex",
-          alignItems: "center",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "flex-start" : "center",
           justifyContent: "space-between",
-          marginBottom: "20px",
+          gap: 2,
+          mb: 3,
         }}
       >
-        <h2 style={{ fontWeight: 600, fontSize: "22px" }}>Order </h2>
-        <span
-          style={{
+        <Typography variant="h5" fontWeight={700}>
+          Orders
+        </Typography>
+
+        <Chip
+          label={`${orders.length} Orders`}
+          sx={{
             background: "#E6F1FB",
             color: "#185FA5",
-            padding: "4px 12px",
-            borderRadius: "20px",
-            fontSize: "13px",
+            fontWeight: 600,
           }}
-        >
-          {orders.length} orders
-        </span>
-      </div>
+        />
+      </Box>
 
       {/* Stats */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "repeat(4, 1fr)",
-          gap: "12px",
-          marginBottom: "20px",
-        }}
-      >
+      <Grid container spacing={2} sx={{ mb: 3 }}>
         {[
-          { label: "Total Orders", value: orders.length },
           {
-            label: "Total Revenue",
+            label: "Total Orders",
+            value: orders.length,
+          },
+
+          {
+            label: "Revenue",
             value: `₹ ${totalRevenue.toLocaleString("en-IN")}`,
           },
-          { label: "Paid", value: paidCount },
-          { label: "Pending", value: orders.length - paidCount },
-        ].map((s) => (
-          <div
-            key={s.label}
-            style={{
-              background: "#f5f5f5",
-              borderRadius: "10px",
-              padding: "14px 16px",
-            }}
-          >
-            <div
-              style={{ fontSize: "12px", color: "#888", marginBottom: "4px" }}
-            >
-              {s.label}
-            </div>
-            <div style={{ fontSize: "22px", fontWeight: 600 }}>{s.value}</div>
-          </div>
-        ))}
-      </div>
 
-      {/* Search & Filter */}
-      <div style={{ display: "flex", gap: "10px", marginBottom: "16px" }}>
-        <input
-          type="text"
+          {
+            label: "Paid",
+            value: paidCount,
+          },
+
+          {
+            label: "Pending",
+            value: orders.length - paidCount,
+          },
+        ].map((item) => (
+          <Grid item xs={6} md={3} key={item.label}>
+            <Paper
+              elevation={0}
+              sx={{
+                p: 2,
+                borderRadius: 3,
+                border: "1px solid #eee",
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                {item.label}
+              </Typography>
+
+              <Typography variant="h6" fontWeight={700} mt={1}>
+                {item.value}
+              </Typography>
+            </Paper>
+          </Grid>
+        ))}
+      </Grid>
+
+      {/* Search */}
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: isMobile ? "column" : "row",
+          gap: 2,
+          mb: 3,
+        }}
+      >
+        <TextField
+          fullWidth
+          size="small"
           placeholder="Search by name, product, order ID..."
           value={search}
           onChange={(e) => setSearch(e.target.value)}
-          style={{
-            flex: 1,
-            padding: "9px 14px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            fontSize: "14px",
-          }}
         />
-        <select
+
+        <Select
           value={payFilter}
           onChange={(e) => setPayFilter(e.target.value)}
-          style={{
-            padding: "9px 14px",
-            border: "1px solid #ddd",
-            borderRadius: "8px",
-            fontSize: "14px",
+          displayEmpty
+          size="small"
+          sx={{
+            minWidth: isMobile ? "100%" : 180,
           }}
         >
-          <option value="">All Payments</option>
-          <option value="Paid">Paid</option>
-          <option value="Pending">Pending</option>
-        </select>
-      </div>
+          <MenuItem value="">All Payments</MenuItem>
+
+          <MenuItem value="Paid">Paid</MenuItem>
+
+          <MenuItem value="Pending">Pending</MenuItem>
+        </Select>
+      </Box>
 
       {/* Table */}
-      <div
-        style={{
-          border: "1px solid #eee",
-          borderRadius: "12px",
+      <Paper
+        elevation={0}
+        sx={{
+          width: "100%",
           overflow: "hidden",
+          borderRadius: 3,
+          border: "1px solid #eee",
         }}
       >
-        <table
-          style={{
-            width: "100%",
-            borderCollapse: "collapse",
-            fontSize: "13px",
+        <TableContainer
+          sx={{
+            overflowX: "auto",
+            maxWidth: "100%",
           }}
         >
-          <thead>
-            <tr style={{ background: "#fafafa" }}>
-              {[
-                "Order ID",
-                "User ID",
-                "User Name",
-                "Product Name",
-                "Size",
-                "Qty",
-                "Total Amount",
-                "Payment",
-                "Date",
-              ].map((h) => (
-                <th
-                  key={h}
-                  style={{
-                    padding: "11px 12px",
-                    textAlign: "left",
-                    fontWeight: 500,
-                    fontSize: "11px",
-                    color: "#888",
-                    textTransform: "uppercase",
-                    letterSpacing: "0.04em",
-                    borderBottom: "1px solid #eee",
-                  }}
-                >
-                  {h}
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody>
-            {loading ? (
-              <tr>
-                <td
-                  colSpan={9}
-                  style={{
-                    textAlign: "center",
-                    padding: "30px",
-                    color: "#999",
-                  }}
-                >
-                  Loading orders...
-                </td>
-              </tr>
-            ) : filtered.length === 0 ? (
-              <tr>
-                <td
-                  colSpan={9}
-                  style={{
-                    textAlign: "center",
-                    padding: "30px",
-                    color: "#999",
-                  }}
-                >
-                  No orders found
-                </td>
-              </tr>
-            ) : (
-              filtered.map((r, i) => (
-                <tr key={i} style={{ borderBottom: "1px solid #f0f0f0" }}>
-                  <td
-                    style={{
-                      padding: "11px 12px",
-                      fontFamily: "monospace",
-                      fontSize: "11px",
-                      color: "#999",
+          <Table
+            sx={{
+              minWidth: 1400,
+              whiteSpace: "nowrap",
+            }}
+          >
+            <TableHead>
+              <TableRow
+                sx={{
+                  background: "#fafafa",
+                }}
+              >
+                {[
+                  "Order ID",
+                  "User ID",
+                  "User Name",
+                  "Product Name",
+                  "Size",
+                  "Quantity",
+                  "Total Amount",
+                  "Payment",
+                  "Date",
+                ].map((head) => (
+                  <TableCell
+                    key={head}
+                    sx={{
+                      fontWeight: 700,
+                      fontSize: "12px",
+                      color: "#777",
+                      whiteSpace: "nowrap",
                     }}
-                    title={r.orderId}
                   >
-                    ...{r.orderId.slice(-8)}
-                  </td>
-                  <td
-                    style={{
-                      padding: "11px 12px",
-                      fontFamily: "monospace",
-                      fontSize: "11px",
-                      color: "#999",
-                    }}
-                    title={r.userId}
-                  >
-                    ...{r.userId.slice(-6)}
-                  </td>
-                  <td style={{ padding: "11px 12px" }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "8px",
+                    {head}
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+
+            <TableBody>
+              {loading ? (
+                <TableRow>
+                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                    <CircularProgress size={28} />
+                  </TableCell>
+                </TableRow>
+              ) : filtered.length === 0 ? (
+                <TableRow>
+                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                    No orders found
+                  </TableCell>
+                </TableRow>
+              ) : (
+                filtered.map((r, i) => (
+                  <TableRow key={i}>
+                    {/* Order ID */}
+                    <TableCell
+                      sx={{
+                        fontFamily: "monospace",
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      <div
-                        style={{
-                          width: "28px",
-                          height: "28px",
-                          borderRadius: "50%",
-                          background: "#E6F1FB",
-                          color: "#185FA5",
-                          fontSize: "11px",
-                          fontWeight: 600,
+                      {r.orderId}
+                    </TableCell>
+
+                    {/* User ID */}
+                    <TableCell
+                      sx={{
+                        fontFamily: "monospace",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {r.userId}
+                    </TableCell>
+
+                    {/* User */}
+                    <TableCell>
+                      <Box
+                        sx={{
                           display: "flex",
                           alignItems: "center",
-                          justifyContent: "center",
-                          flexShrink: 0,
+                          gap: 1,
                         }}
                       >
-                        {initials(r.userName)}
-                      </div>
-                      {r.userName}
-                    </div>
-                  </td>
-                  <td style={{ padding: "11px 12px" }}>{r.productName}</td>
-                  <td style={{ padding: "11px 12px" }}>{r.size}</td>
-                  <td style={{ padding: "11px 12px" }}>{r.quantity}</td>
-                  <td style={{ padding: "11px 12px", fontWeight: 600 }}>
-                    ₹ {r.totalAmount.toLocaleString("en-IN")}
-                  </td>
-                  <td style={{ padding: "11px 12px" }}>
-                    <span
-                      style={{
-                        background:
-                          r.paymentStatus === "Paid" ? "#EAF3DE" : "#FAEEDA",
-                        color:
-                          r.paymentStatus === "Paid" ? "#3B6D11" : "#854F0B",
-                        padding: "3px 10px",
-                        borderRadius: "20px",
-                        fontSize: "11px",
-                        fontWeight: 500,
+                        <Avatar
+                          sx={{
+                            width: 30,
+                            height: 30,
+                            fontSize: 12,
+                            bgcolor: "#E6F1FB",
+                            color: "#185FA5",
+                            fontWeight: 700,
+                          }}
+                        >
+                          {initials(r.userName)}
+                        </Avatar>
+
+                        <Typography
+                          sx={{
+                            whiteSpace: "nowrap",
+                          }}
+                        >
+                          {r.userName}
+                        </Typography>
+                      </Box>
+                    </TableCell>
+
+                    {/* Product */}
+                    <TableCell
+                      sx={{
+                        whiteSpace: "nowrap",
                       }}
                     >
-                      {r.paymentStatus}
-                    </span>
-                  </td>
-                  <td style={{ padding: "11px 12px", color: "#888" }}>
-                    {r.date}
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-    </div>
+                      {r.productName}
+                    </TableCell>
+
+                    {/* Size */}
+                    <TableCell>{r.size}</TableCell>
+
+                    {/* Qty */}
+                    <TableCell>{r.quantity}</TableCell>
+
+                    {/* Amount */}
+                    <TableCell
+                      sx={{
+                        fontWeight: 700,
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      ₹ {r.totalAmount.toLocaleString("en-IN")}
+                    </TableCell>
+
+                    {/* Payment */}
+                    <TableCell>
+                      <Chip
+                        label={r.paymentStatus}
+                        size="small"
+                        sx={{
+                          background:
+                            r.paymentStatus === "Paid" ? "#EAF3DE" : "#FAEEDA",
+
+                          color:
+                            r.paymentStatus === "Paid" ? "#3B6D11" : "#854F0B",
+
+                          fontWeight: 700,
+                        }}
+                      />
+                    </TableCell>
+
+                    {/* Date */}
+                    <TableCell
+                      sx={{
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {r.date}
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Paper>
+    </Box>
   );
 };
 
