@@ -19,9 +19,11 @@ import {
   Avatar,
   CircularProgress,
   useMediaQuery,
+  Button,
 } from "@mui/material";
-
+import { FaEye } from "react-icons/fa";
 import { useTheme } from "@mui/material/styles";
+import { useNavigate } from "react-router-dom";
 
 const OrderList = () => {
   const [orders, setOrders] = useState([]);
@@ -33,15 +35,24 @@ const OrderList = () => {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
+  const navigate = useNavigate();
+
+  const API_URL =
+    import.meta.env.VITE_API_URL ||
+    "https://clothing-backend-volk.onrender.com";
+
+  // ================= GET ORDERS =================
+
   const getOrders = async () => {
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/order/all-orders`,
-      );
+      setLoading(true);
+
+      const res = await axios.get(`${API_URL}/order/all-orders`);
 
       const data = res.data.orders || [];
 
       setOrders(data);
+
       setRows(flattenOrders(data));
     } catch (error) {
       console.log("ORDER FETCH ERROR:", error);
@@ -50,6 +61,8 @@ const OrderList = () => {
     }
   };
 
+  // ================= FLATTEN DATA =================
+
   const flattenOrders = (orders) => {
     const result = [];
 
@@ -57,12 +70,21 @@ const OrderList = () => {
       for (const item of order.products || []) {
         result.push({
           orderId: order._id,
+
           userId: order.userId?._id || "-",
+
           userName: order.userId?.name || order.userId?.fullname || "-",
+
+          productId: item.productId?._id || "",
+
           productName: item.productId?.productName || "-",
+
           size: item.size || "-",
+
           quantity: item.quantity,
+
           totalAmount: order.totalAmount,
+
           paymentStatus: order.paymentStatus,
 
           date: order.createdAt
@@ -83,6 +105,8 @@ const OrderList = () => {
     getOrders();
   }, []);
 
+  // ================= FILTER =================
+
   const filtered = rows.filter((r) => {
     const q = search.toLowerCase();
 
@@ -97,12 +121,16 @@ const OrderList = () => {
     return matchQ && matchP;
   });
 
+  // ================= STATS =================
+
   const totalRevenue = orders.reduce(
     (sum, order) => sum + order.totalAmount,
     0,
   );
 
   const paidCount = orders.filter((o) => o.paymentStatus === "Paid").length;
+
+  // ================= USER INITIALS =================
 
   const initials = (name) =>
     name
@@ -121,13 +149,17 @@ const OrderList = () => {
         overflow: "hidden",
       }}
     >
-      {/* Header */}
+      {/* ================= HEADER ================= */}
+
       <Box
         sx={{
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
+
           alignItems: isMobile ? "flex-start" : "center",
+
           justifyContent: "space-between",
+
           gap: 2,
           mb: 3,
         }}
@@ -146,7 +178,8 @@ const OrderList = () => {
         />
       </Box>
 
-      {/* Stats */}
+      {/* ================= STATS ================= */}
+
       <Grid container spacing={2} sx={{ mb: 3 }}>
         {[
           {
@@ -190,11 +223,13 @@ const OrderList = () => {
         ))}
       </Grid>
 
-      {/* Search */}
+      {/* ================= SEARCH ================= */}
+
       <Box
         sx={{
           display: "flex",
           flexDirection: isMobile ? "column" : "row",
+
           gap: 2,
           mb: 3,
         }}
@@ -224,7 +259,8 @@ const OrderList = () => {
         </Select>
       </Box>
 
-      {/* Table */}
+      {/* ================= TABLE ================= */}
+
       <Paper
         elevation={0}
         sx={{
@@ -242,10 +278,12 @@ const OrderList = () => {
         >
           <Table
             sx={{
-              minWidth: 1400,
+              minWidth: 1500,
               whiteSpace: "nowrap",
             }}
           >
+            {/* ================= TABLE HEAD ================= */}
+
             <TableHead>
               <TableRow
                 sx={{
@@ -262,6 +300,7 @@ const OrderList = () => {
                   "Total Amount",
                   "Payment",
                   "Date",
+                  "View",
                 ].map((head) => (
                   <TableCell
                     key={head}
@@ -278,23 +317,32 @@ const OrderList = () => {
               </TableRow>
             </TableHead>
 
+            {/* ================= TABLE BODY ================= */}
+
             <TableBody>
+              {/* LOADING */}
+
               {loading ? (
                 <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={10} align="center" sx={{ py: 6 }}>
                     <CircularProgress size={28} />
                   </TableCell>
                 </TableRow>
               ) : filtered.length === 0 ? (
+                /* NO DATA */
+
                 <TableRow>
-                  <TableCell colSpan={9} align="center" sx={{ py: 6 }}>
+                  <TableCell colSpan={10} align="center" sx={{ py: 6 }}>
                     No orders found
                   </TableCell>
                 </TableRow>
               ) : (
+                /* REAL DATA */
+
                 filtered.map((r, i) => (
                   <TableRow key={i}>
-                    {/* Order ID */}
+                    {/* ORDER ID */}
+
                     <TableCell
                       sx={{
                         fontFamily: "monospace",
@@ -304,7 +352,8 @@ const OrderList = () => {
                       {r.orderId}
                     </TableCell>
 
-                    {/* User ID */}
+                    {/* USER ID */}
+
                     <TableCell
                       sx={{
                         fontFamily: "monospace",
@@ -314,7 +363,8 @@ const OrderList = () => {
                       {r.userId}
                     </TableCell>
 
-                    {/* User */}
+                    {/* USER */}
+
                     <TableCell>
                       <Box
                         sx={{
@@ -346,7 +396,8 @@ const OrderList = () => {
                       </Box>
                     </TableCell>
 
-                    {/* Product */}
+                    {/* PRODUCT */}
+
                     <TableCell
                       sx={{
                         whiteSpace: "nowrap",
@@ -355,13 +406,16 @@ const OrderList = () => {
                       {r.productName}
                     </TableCell>
 
-                    {/* Size */}
+                    {/* SIZE */}
+
                     <TableCell>{r.size}</TableCell>
 
-                    {/* Qty */}
+                    {/* QUANTITY */}
+
                     <TableCell>{r.quantity}</TableCell>
 
-                    {/* Amount */}
+                    {/* AMOUNT */}
+
                     <TableCell
                       sx={{
                         fontWeight: 700,
@@ -371,7 +425,8 @@ const OrderList = () => {
                       ₹ {r.totalAmount.toLocaleString("en-IN")}
                     </TableCell>
 
-                    {/* Payment */}
+                    {/* PAYMENT */}
+
                     <TableCell>
                       <Chip
                         label={r.paymentStatus}
@@ -388,13 +443,28 @@ const OrderList = () => {
                       />
                     </TableCell>
 
-                    {/* Date */}
+                    {/* DATE */}
+
                     <TableCell
                       sx={{
                         whiteSpace: "nowrap",
                       }}
                     >
                       {r.date}
+                    </TableCell>
+
+                    {/* VIEW BUTTON */}
+
+                    <TableCell>
+                      <Button
+                        onClick={() => navigate(`/product/${r.productId}`)}
+                        sx={{
+                          textTransform: "none",
+                          borderRadius: 2,
+                        }}
+                      >
+                        <FaEye />
+                      </Button>
                     </TableCell>
                   </TableRow>
                 ))
