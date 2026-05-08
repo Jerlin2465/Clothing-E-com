@@ -4,6 +4,9 @@ import "../../csspage/Home.css";
 import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 
+import Skeleton from "@mui/material/Skeleton";
+import Box from "@mui/material/Box";
+
 const API_URL =
   import.meta.env.VITE_API_URL || "https://clothing-backend-volk.onrender.com";
 
@@ -11,19 +14,36 @@ const HomeProducts = ({ category }) => {
   const [product, setProduct] = useState([]);
   const [slideimg, setSlideimg] = useState({});
   const [like, setLike] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const navigate = useNavigate();
 
+  // GET PRODUCTS
   const getProduct = async () => {
     try {
+      setLoading(true);
+
       const res = await axios.get(`${API_URL}/get-product`, {
         params: {
           category: category || undefined,
         },
       });
-      setProduct(res.data);
+
+      console.log("API Response:", res.data);
+
+      // SAFE ARRAY CHECK
+      const productsData = Array.isArray(res.data)
+        ? res.data
+        : res.data.products || [];
+
+      setProduct(productsData);
     } catch (error) {
-      console.log(error.message);
+      console.log(error.response?.data || error.message);
+
+      // PREVENT MAP ERROR
+      setProduct([]);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -31,6 +51,7 @@ const HomeProducts = ({ category }) => {
     getProduct();
   }, [category]);
 
+  // WISHLIST TOGGLE
   const handleToggle = async (id) => {
     try {
       if (like.includes(id)) {
@@ -40,6 +61,7 @@ const HomeProducts = ({ category }) => {
             Authorization: `Bearer ${localStorage.getItem("token")}`,
           },
         });
+
         setLike((prev) => prev.filter((item) => item !== id));
       } else {
         await axios.post(
@@ -51,6 +73,7 @@ const HomeProducts = ({ category }) => {
             },
           },
         );
+
         setLike((prev) => [...prev, id]);
       }
     } catch (error) {
@@ -61,54 +84,90 @@ const HomeProducts = ({ category }) => {
   return (
     <div className="product-home-page">
       <div className="product-home-container">
-        {product.map((item) => {
-          const currentIndex = slideimg[item._id] || 0;
-
-          return (
-            <div className="product-home-card" key={item._id}>
-              <div className="image-box">
-                <span className="badge">{item.gender}</span>
-
-                <img
-                  src={`${API_URL}/uploads/${item.image?.[currentIndex]}`}
-                  alt="product"
+        {loading &&
+          Array.from(new Array(8)).map((_, index) => (
+            <div className="product-home-card" key={index}>
+              <Box>
+                {/* IMAGE */}
+                <Skeleton
+                  variant="rectangular"
+                  width="100%"
+                  height={260}
+                  sx={{ borderRadius: "10px" }}
                 />
 
-                <span
-                  className="badg-1"
-                  style={{ cursor: "pointer", marginLeft: "20px" }}
-                  onClick={() => handleToggle(item._id)}
-                >
-                  <FaHeart
-                    style={{
-                      color: like.includes(item._id) ? "red" : "#ccc",
-                      fontSize: "20px",
-                    }}
+                {/* TITLE */}
+                <Skeleton width="80%" height={35} sx={{ marginTop: "10px" }} />
+
+                {/* DESCRIPTION */}
+                <Skeleton width="60%" />
+
+                {/* CATEGORY */}
+                <Skeleton width="40%" />
+
+                {/* PRICE */}
+                <Skeleton width="30%" height={35} />
+              </Box>
+            </div>
+          ))}
+
+        {!loading &&
+          product.map((item) => {
+            const currentIndex = slideimg[item._id] || 0;
+
+            return (
+              <div className="product-home-card" key={item._id}>
+                <div className="image-box">
+                  <span className="badge">{item.gender}</span>
+
+                  <img
+                    src={`${API_URL}/uploads/${item.image?.[currentIndex]}`}
+                    alt="product"
                   />
-                </span>
-              </div>
 
-              <div
-                className="home-product-text"
-                onClick={() => navigate(`/product/${item._id}`)}
-              >
-                <p className="name">{item.productName}</p>
-                <p className="desc">{item.description}</p>
-                <p className="desc">{item.category}</p>
-                <div className="price">₹{item.price}</div>
-              </div>
+                  <span
+                    className="badg-1"
+                    style={{
+                      cursor: "pointer",
+                      marginLeft: "20px",
+                    }}
+                    onClick={() => handleToggle(item._id)}
+                  >
+                    <FaHeart
+                      style={{
+                        color: like.includes(item._id) ? "red" : "#ccc",
+                        fontSize: "20px",
+                      }}
+                    />
+                  </span>
+                </div>
 
-              <div className="bottom">
+                {/* TEXT */}
                 <div
-                  className="action-text"
+                  className="home-product-text"
                   onClick={() => navigate(`/product/${item._id}`)}
                 >
-                  View Details →
+                  <p className="name">{item.productName}</p>
+
+                  <p className="desc">{item.description}</p>
+
+                  <p className="desc">{item.category}</p>
+
+                  <div className="price">₹{item.price}</div>
+                </div>
+
+                {/* BUTTON */}
+                <div className="bottom">
+                  <div
+                    className="action-text"
+                    onClick={() => navigate(`/product/${item._id}`)}
+                  >
+                    View Details →
+                  </div>
                 </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })}
       </div>
     </div>
   );
