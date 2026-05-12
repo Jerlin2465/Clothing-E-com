@@ -3,22 +3,42 @@ import axios from "axios";
 import "../csspage/Home.css";
 import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
+
+const API_URL =
+  import.meta.env.VITE_API_URL || "https://clothing-backend-volk.onrender.com";
+
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);
-  const navigate = useNavigate();
   const [like, setLike] = useState([]);
 
+  const navigate = useNavigate();
+
+  // GET WISHLIST
   const getWishlist = async () => {
     try {
-      const res = await axios.get(`${import.meta.env.VITE_API_URL}/wishlist`, {
+      const token = localStorage.getItem("token");
+
+      // LOGIN CHECK
+      if (!token) {
+        navigate("/login");
+        return;
+      }
+
+      const res = await axios.get(`${API_URL}/wishlist`, {
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
       setWishlist(res.data.items || []);
     } catch (error) {
       console.log(error.response?.data || error.message);
+
+      // INVALID TOKEN
+      if (error.response?.status === 401) {
+        localStorage.removeItem("token");
+        navigate("/login");
+      }
     }
   };
 
@@ -28,14 +48,18 @@ const Wishlist = () => {
 
   const handleDelete = async (productId) => {
     try {
-      await axios.delete(`${import.meta.env.VITE_API_URL}/wishlist/remove`, {
+      const token = localStorage.getItem("token");
+
+      await axios.delete(`${API_URL}/wishlist/remove`, {
         data: { productId },
         headers: {
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
+          Authorization: `Bearer ${token}`,
         },
       });
 
-      getWishlist();
+      setWishlist((prev) =>
+        prev.filter((item) => item.productId?._id !== productId),
+      );
     } catch (error) {
       console.log(error.response?.data || error.message);
     }
@@ -48,6 +72,7 @@ const Wishlist = () => {
       setLike([...like, id]);
     }
   };
+
   return (
     <>
       {wishlist.length === 0 ? (
@@ -84,6 +109,7 @@ const Wishlist = () => {
           <div className="product-home-container">
             {wishlist.map((item) => {
               const product = item.productId;
+
               if (!product) return null;
 
               return (
@@ -93,13 +119,16 @@ const Wishlist = () => {
                     <span className="badge">{product.gender}</span>
 
                     <img
-                      src={`${VITE_API_URL}/uploads/${product.image?.[0]}`}
-                      alt="product"
+                      src={`${API_URL}/uploads/${product.image?.[0]}`}
+                      alt={product.productName}
                     />
 
                     <span
                       className="badg-1"
-                      style={{ cursor: "pointer", marginLeft: "20px" }}
+                      style={{
+                        cursor: "pointer",
+                        marginLeft: "20px",
+                      }}
                       onClick={() => {
                         handleDelete(product._id);
                         handleColor(item._id);
@@ -120,7 +149,9 @@ const Wishlist = () => {
                     onClick={() => navigate(`/product/${product._id}`)}
                   >
                     <p className="name">{product.productName}</p>
+
                     <p className="desc">{product.description}</p>
+
                     <div className="price">₹{product.price}</div>
                   </div>
 
