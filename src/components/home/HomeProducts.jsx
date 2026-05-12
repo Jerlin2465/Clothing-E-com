@@ -29,8 +29,6 @@ const HomeProducts = ({ category }) => {
         },
       });
 
-      console.log("API Response:", res.data);
-
       // SAFE ARRAY CHECK
       const productsData = Array.isArray(res.data)
         ? res.data
