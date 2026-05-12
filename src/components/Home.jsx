@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Box, Typography } from "@mui/material";
 // import homeImg2 from "../assets/homeimg-2.png";
-import homeImg2 from "../assets/hoodi.avif";
+import homeImg2 from "../assets/hoodi.jpg";
 import banner from "../assets/banner.jpg";
 import banner3 from "../assets/hoodi-2.jpg";
 import { IoIosArrowUp } from "react-icons/io";
@@ -33,8 +33,7 @@ const Home = () => {
 
   return (
     <>
-      {/* HERO SECTION */}
-      <Box sx={{ backgroundColor: "#aab", p: 5, mt: 13 }}>
+      <Box sx={{ backgroundColor: "rgb(193, 193, 205)", p: 5, mt: 13 }}>
         <Box
           sx={{
             display: "flex",
@@ -48,7 +47,7 @@ const Home = () => {
             boxShadow: 4,
             // mt: 13,
             p: 2,
-            background: "#e3dede",
+            background: "linear-gradient(to right, #777, #cac2c2)",
           }}
         >
           <Box sx={{ flex: 1, display: "flex", justifyContent: "center" }}>
@@ -59,6 +58,7 @@ const Home = () => {
                 width: { xs: "80%", md: "90%" },
                 maxWidth: 500,
                 objectFit: "contain",
+                borderRadius: 6,
               }}
             />
           </Box>
