@@ -60,8 +60,8 @@ const Home = () => {
               sx={{
                 width: { xs: "80%", md: "90%" },
                 maxWidth: 500,
-                objectFit: "contain",
                 borderRadius: 6,
+                height:"650px"
               }}
             />
           </Box>
