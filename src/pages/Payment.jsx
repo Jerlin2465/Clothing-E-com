@@ -34,11 +34,12 @@ const PaymentForm = () => {
 
   const handlePayment = async () => {
     try {
-      console.log("Step 1 — totalAmount:", totalAmount);
-
-      const { data } = await axios.post(`${import.meta.env.VITE_API_URL}/payment/order`, {
-        amount: totalAmount,
-      });
+      const { data } = await axios.post(
+        `${import.meta.env.VITE_API_URL}/payment/order`,
+        {
+          amount: totalAmount,
+        },
+      );
 
       const options = {
         key: import.meta.env.VITE_RAZOR_PAYMENT_ID,
@@ -49,40 +50,42 @@ const PaymentForm = () => {
 
         handler: async function (response) {
           try {
-            console.log("Step 3 — verifying payment...");
-
-            // Send totalAmount so paymentModel can save it
+            // VERIFY PAYMENT
             const verify = await axios.post(
               `${import.meta.env.VITE_API_URL}/payment/verify`,
               {
                 razorpay_order_id: response.razorpay_order_id,
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
-                totalAmount: totalAmount,
+                totalAmount,
               },
-              { headers: { Authorization: `Bearer ${token}` } },
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
             );
 
-            console.log("Step 4 — verify result:", verify.data);
-
             if (!verify.data.success) {
-              alert("Payment verification failed. Order not placed.");
+              alert("Payment verification failed");
               return;
             }
 
-            //  Place order
+            // 🟢 PLACE ORDER (IMPORTANT FIX: email + name added)
             const orderData = {
               userId: user?.id || user?._id,
+              email: user?.email, // 🔥 REQUIRED FOR EMAIL
+              name: user?.name, // 🔥 REQUIRED FOR EMAIL
+
               products: cartItem.map((item) => ({
                 productId: item.productId,
                 size: item.size,
                 quantity: item.quantity,
               })),
-              totalAmount: totalAmount,
+
+              totalAmount,
               paymentStatus: "Paid",
             };
-
-            console.log("Step 5 — placing order:", orderData);
 
             const orderRes = await axios.post(
               `${import.meta.env.VITE_API_URL}/order/place-order`,
@@ -90,37 +93,42 @@ const PaymentForm = () => {
             );
 
             if (orderRes.data.success) {
-              //  Clear cart after order saved successfully
+              // CLEAR CART
               try {
-                await axios.delete(`${import.meta.env.VITE_API_URL}/cart/clear`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                console.log("Cart cleared");
-              } catch (e) {
-                console.log("Cart clear failed (non-critical):", e.message);
+                await axios.delete(
+                  `${import.meta.env.VITE_API_URL}/cart/clear`,
+                  {
+                    headers: {
+                      Authorization: `Bearer ${token}`,
+                    },
+                  },
+                );
+              } catch (err) {
+                console.log("Cart clear error:", err.message);
               }
 
-              alert("🎉 Order placed successfully! Thank you for shopping.");
+              alert("Order placed successfully 🎉 Email sent!");
               navigate("/");
             } else {
-              alert("Order failed: " + orderRes.data.message);
+              alert(orderRes.data.message);
             }
           } catch (err) {
-            const msg = err.response?.data?.message || err.message;
-            console.error("Step ERROR:", err.response?.data || err.message);
-            alert("Error: " + msg);
+            console.log(err);
+            alert("Something went wrong");
           }
         },
 
         modal: {
-          ondismiss: () => console.log("Payment cancelled by user"),
+          ondismiss: () => {
+            console.log("Payment cancelled");
+          },
         },
       };
 
       new window.Razorpay(options).open();
     } catch (err) {
-      console.error("Payment init error:", err.response?.data || err.message);
-      alert("Could not start payment. Please try again.");
+      console.log(err);
+      alert("Payment failed");
     }
   };
 
@@ -145,10 +153,13 @@ const PaymentForm = () => {
         <Typography variant="h4" sx={{ mb: 3, fontWeight: "bold" }}>
           Payment
         </Typography>
+
         <Typography sx={{ fontSize: "20px", mb: 2 }}>Total Amount</Typography>
+
         <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
           ₹ {totalAmount.toLocaleString("en-IN")}
         </Typography>
+
         <Button
           onClick={handlePayment}
           sx={{

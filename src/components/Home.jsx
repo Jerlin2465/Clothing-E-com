@@ -6,6 +6,7 @@ import banner from "../assets/banner.jpg";
 import banner3 from "../assets/hoodi-2.jpg";
 import { IoIosArrowUp } from "react-icons/io";
 import HomeProducts from "./home/HomeProducts";
+import Banner from "../pages/Banner";
 
 const Home = () => {
   const [category, setCategory] = useState("");
@@ -33,6 +34,8 @@ const Home = () => {
 
   return (
     <>
+      <Banner />
+
       <Box sx={{ backgroundColor: "rgb(193, 193, 205)", p: 5, mt: 13 }}>
         <Box
           sx={{

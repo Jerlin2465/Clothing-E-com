@@ -22,7 +22,7 @@
 /* Sidebar Menu */
 .sidebar p {
   cursor: pointer;
-  padding: 12px 14px;
+  /* padding: 12px 14px; */
   border-radius: 8px;
   margin-bottom: 10px;
   transition: 0.3s;

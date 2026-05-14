@@ -20,7 +20,10 @@ const AdminLayout = () => {
     {
       name: "OrderList",
       path: "/adminrouter/orderlist",
-    },
+    },{
+      name:"Banner",
+      path:"/adminrouter/addbanner"
+    }
   ];
 
   const handleNavigate = (path) => {
