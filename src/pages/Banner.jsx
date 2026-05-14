@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { Box } from "@mui/material";
 
 const Banner = () => {
   const [banners, setBanners] = useState([]);
@@ -25,7 +26,7 @@ const Banner = () => {
 
   return (
     <>
-      <div>
+      <Box sx={{ mt: 11 }}>
         {banners.map((banner) => (
           <div key={banner._id}>
             <img
@@ -33,13 +34,12 @@ const Banner = () => {
               alt="banner"
               style={{
                 width: "100%",
-                height: "500px",
-                objectFit: "cover",
+                height: "600px",
               }}
             />
           </div>
         ))}
-      </div>
+      </Box>
     </>
   );
 };

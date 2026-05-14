@@ -20,10 +20,11 @@ const AdminLayout = () => {
     {
       name: "OrderList",
       path: "/adminrouter/orderlist",
-    },{
-      name:"Banner",
-      path:"/adminrouter/addbanner"
-    }
+    },
+    {
+      name: "Banner",
+      path: "/adminrouter/addbanner",
+    },
   ];
 
   const handleNavigate = (path) => {
@@ -45,6 +46,7 @@ const AdminLayout = () => {
             key={item.path}
             onClick={() => handleNavigate(item.path)}
             className={location.pathname === item.path ? "active" : ""}
+            style={{ padding: "10px" }}
           >
             {item.name}
           </p>

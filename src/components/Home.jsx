@@ -36,7 +36,7 @@ const Home = () => {
     <>
       <Banner />
 
-      <Box sx={{ backgroundColor: "rgb(193, 193, 205)", p: 5, mt: 13 }}>
+      <Box sx={{ backgroundColor: "rgb(193, 193, 205)", p: 5 }}>
         <Box
           sx={{
             display: "flex",
@@ -48,7 +48,7 @@ const Home = () => {
             minHeight: { xs: 400, md: 600 },
             borderRadius: 5,
             boxShadow: 4,
-            // mt: 13,
+
             p: 2,
             background: "linear-gradient(to right, #777, #cac2c2)",
           }}
