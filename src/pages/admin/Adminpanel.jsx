@@ -1,12 +1,23 @@
-import { Box, Button, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  TextField,
+  Typography,
+  Snackbar,
+  Alert,
+} from "@mui/material";
+
 import img from "../../assets/download-img.png";
-import { useRef, useState } from "react";
+
+import { useRef, useState, useEffect } from "react";
+
 import axios from "axios";
-import { useEffect } from "react";
+
 import { useNavigate } from "react-router-dom";
 
 const Adminpanel = () => {
   const navigate = useNavigate();
+
   const fill = useRef(null);
 
   const [product, setProduct] = useState({
@@ -18,20 +29,51 @@ const Adminpanel = () => {
   });
 
   const [image, setImage] = useState([]);
-  const [size, setSize] = useState([{ size: "", stock: "" }]);
+
+  const [size, setSize] = useState([
+    {
+      size: "",
+      stock: "",
+    },
+  ]);
+
+  // ================= SNACKBAR =================
+
+  const [open, setOpen] = useState(false);
+
+  const [message, setMessage] = useState("");
+
+  const [type, setType] = useState("success");
+
+  const showSnackbar = (msg, severity = "success") => {
+    setMessage(msg);
+
+    setType(severity);
+
+    setOpen(true);
+  };
+
+  // ================= IMAGE CLICK =================
 
   const handleClick = () => {
     fill.current.click();
   };
 
+  // ================= IMAGE CHANGE =================
+
   const handleFileChange = (e) => {
     const files = Array.from(e.target.files);
+
     if (files.length + image.length > 4) {
-      alert("You can upload only 4 images");
+      showSnackbar("You can upload only 4 images", "warning");
+
       return;
     }
+
     setImage((prev) => [...prev, ...files]);
   };
+
+  // ================= INPUT CHANGE =================
 
   const handleChange = (e) => {
     setProduct((prev) => ({
@@ -40,43 +82,80 @@ const Adminpanel = () => {
     }));
   };
 
+  // ================= SIZE CHANGE =================
+
   const handelSizeChange = (index, field, value) => {
     const update = [...size];
+
     update[index][field] = value;
+
     setSize(update);
   };
+
+  // ================= REMOVE SIZE =================
 
   const handleRemove = (index) => {
     const update = size.filter((_, i) => i !== index);
+
     setSize(update);
   };
 
+  // ================= ADD SIZE =================
+
   const handleAdd = () => {
-    setSize([...size, { size: "", stock: "" }]);
+    setSize([
+      ...size,
+      {
+        size: "",
+        stock: "",
+      },
+    ]);
   };
+
+  // ================= SUBMIT =================
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const formData = new FormData();
-    formData.append("productName", product.productName);
-    formData.append("price", product.price);
-    formData.append("description", product.description);
-    formData.append("gender", product.gender);
-    formData.append("category", product.category);
-    image.forEach((image) => {
-      formData.append("image", image);
-    });
+    if (image.length === 0) {
+      showSnackbar("Please upload product images", "warning");
 
-    formData.append("size", JSON.stringify(size));
+      return;
+    }
+
     try {
+      const formData = new FormData();
+
+      formData.append("productName", product.productName);
+
+      formData.append("price", product.price);
+
+      formData.append("description", product.description);
+
+      formData.append("gender", product.gender);
+
+      formData.append("category", product.category);
+
+      image.forEach((image) => {
+        formData.append("image", image);
+      });
+
+      formData.append("size", JSON.stringify(size));
+
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/get-product/upload`,
         formData,
-        { withCredentials: true },
+        {
+          withCredentials: true,
+        },
       );
+
       console.log(res.data);
-      alert("Product Added Successfully");
+
+      showSnackbar("Product Added Successfully", "success");
+
+      // RESET
+
       setProduct({
         productName: "",
         price: "",
@@ -84,12 +163,23 @@ const Adminpanel = () => {
         gender: "",
         category: "",
       });
+
       setImage([]);
-      setSize([""]);
+
+      setSize([
+        {
+          size: "",
+          stock: "",
+        },
+      ]);
     } catch (error) {
       console.log(error);
+
+      showSnackbar("Product upload failed", "error");
     }
   };
+
+  // ================= ADMIN CHECK =================
 
   useEffect(() => {
     const user = JSON.parse(localStorage.getItem("user"));
@@ -98,165 +188,227 @@ const Adminpanel = () => {
       navigate("/");
     }
   }, []);
-  return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="file"
-        ref={fill}
-        onChange={handleFileChange}
-        multiple
-        style={{ display: "none" }}
-      />
 
-      <Box
-        sx={{
-          minHeight: "100vh",
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          backgroundColor: "#f5f5f5",
-        }}
-      >
+  return (
+    <>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="file"
+          ref={fill}
+          onChange={handleFileChange}
+          multiple
+          style={{
+            display: "none",
+          }}
+        />
+
         <Box
           sx={{
-            width: 420,
-            p: 4,
-            borderRadius: 3,
-            backgroundColor: "#fff",
-            boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+            minHeight: "100vh",
             display: "flex",
-            flexDirection: "column",
-            gap: 2,
+            justifyContent: "center",
+            alignItems: "center",
+            backgroundColor: "#f5f5f5",
           }}
         >
-          <Typography variant="h4" textAlign="center" fontWeight="bold">
-            Add Product
-          </Typography>
-
-          <Box sx={{ display: "flex", gap: 2 }}>
-            {[0, 1, 2, 3].map((i) => (
-              <Box
-                key={i}
-                component="img"
-                src={image[i] ? URL.createObjectURL(image[i]) : img}
-                onClick={handleClick}
-                sx={{
-                  width: 90,
-                  height: 90,
-                  objectFit: "cover",
-                  cursor: "pointer",
-                  border: "1px solid #ddd",
-                  borderRadius: 2,
-                }}
-              />
-            ))}
-          </Box>
-
-          <TextField
-            label="Product Name"
-            name="productName"
-            value={product.productName}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            label="Product Price"
-            name="price"
-            value={product.price}
-            type="number"
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            label="Product Description"
-            name="description"
-            value={product.description}
-            onChange={handleChange}
-            fullWidth
-          />
-
-          <TextField
-            label="Gender"
-            name="gender"
-            value={product.gender}
-            onChange={handleChange}
-            fullWidth
-          />
-          <TextField
-            select
-            name="category"
-            value={product.category}
-            onChange={handleChange}
-            fullWidth
-            SelectProps={{
-              native: true,
+          <Box
+            sx={{
+              width: 420,
+              p: 4,
+              borderRadius: 3,
+              backgroundColor: "#fff",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.1)",
+              display: "flex",
+              flexDirection: "column",
+              gap: 2,
             }}
           >
-            <option value="">Select Category</option>
-            <option value="shirt">Shirt</option>
-            <option value="pant">Pant</option>
-            <option value="tshirt">T-Shirt</option>
-            <option value="hoodie">Hoodie</option>
-          </TextField>
+            <Typography variant="h4" textAlign="center" fontWeight="bold">
+              Add Product
+            </Typography>
 
-          <Box>
-            <Typography mb={1}>Select Size</Typography>
+            {/* IMAGES */}
 
-            {size.map((s, index) => (
-              <Box key={index} sx={{ display: "flex", gap: 1, mb: 1 }}>
-                <TextField
-                  size="small"
-                  label="Size"
-                  value={s.size}
-                  onChange={(e) =>
-                    handelSizeChange(index, "size", e.target.value)
-                  }
+            <Box
+              sx={{
+                display: "flex",
+                gap: 2,
+              }}
+            >
+              {[0, 1, 2, 3].map((i) => (
+                <Box
+                  key={i}
+                  component="img"
+                  src={image[i] ? URL.createObjectURL(image[i]) : img}
+                  onClick={handleClick}
+                  sx={{
+                    width: 90,
+                    height: 90,
+                    objectFit: "cover",
+                    cursor: "pointer",
+                    border: "1px solid #ddd",
+                    borderRadius: 2,
+                  }}
                 />
+              ))}
+            </Box>
 
-                <TextField
-                  size="small"
-                  label="Stock"
-                  type="number"
-                  value={s.stock}
-                  onChange={(e) =>
-                    handelSizeChange(index, "stock", e.target.value)
-                  }
-                />
+            {/* PRODUCT NAME */}
 
-                <Button
-                  variant="outlined"
-                  color="error"
-                  onClick={() => handleRemove(index)}
+            <TextField
+              label="Product Name"
+              name="productName"
+              value={product.productName}
+              onChange={handleChange}
+              fullWidth
+            />
+
+            {/* PRICE */}
+
+            <TextField
+              label="Product Price"
+              name="price"
+              value={product.price}
+              type="number"
+              onChange={handleChange}
+              fullWidth
+            />
+
+            {/* DESCRIPTION */}
+
+            <TextField
+              label="Product Description"
+              name="description"
+              value={product.description}
+              onChange={handleChange}
+              fullWidth
+            />
+
+            {/* GENDER */}
+
+            <TextField
+              label="Gender"
+              name="gender"
+              value={product.gender}
+              onChange={handleChange}
+              fullWidth
+            />
+
+            {/* CATEGORY */}
+
+            <TextField
+              select
+              name="category"
+              value={product.category}
+              onChange={handleChange}
+              fullWidth
+              SelectProps={{
+                native: true,
+              }}
+            >
+              <option value="">Select Category</option>
+
+              <option value="shirt">Shirt</option>
+
+              <option value="pant">Pant</option>
+
+              <option value="tshirt">T-Shirt</option>
+
+              <option value="hoodie">Hoodie</option>
+            </TextField>
+
+            {/* SIZE */}
+
+            <Box>
+              <Typography mb={1}>Select Size</Typography>
+
+              {size.map((s, index) => (
+                <Box
+                  key={index}
+                  sx={{
+                    display: "flex",
+                    gap: 1,
+                    mb: 1,
+                  }}
                 >
-                  X
-                </Button>
-              </Box>
-            ))}
+                  <TextField
+                    size="small"
+                    label="Size"
+                    value={s.size}
+                    onChange={(e) =>
+                      handelSizeChange(index, "size", e.target.value)
+                    }
+                  />
 
-            <Button variant="contained" onClick={handleAdd}>
-              Add Size
+                  <TextField
+                    size="small"
+                    label="Stock"
+                    type="number"
+                    value={s.stock}
+                    onChange={(e) =>
+                      handelSizeChange(index, "stock", e.target.value)
+                    }
+                  />
+
+                  <Button
+                    variant="outlined"
+                    color="error"
+                    onClick={() => handleRemove(index)}
+                  >
+                    X
+                  </Button>
+                </Box>
+              ))}
+
+              <Button variant="contained" onClick={handleAdd}>
+                Add Size
+              </Button>
+            </Box>
+
+            {/* SUBMIT */}
+
+            <Button
+              type="submit"
+              fullWidth
+              sx={{
+                mt: 2,
+                backgroundColor: "#1a237e",
+                color: "#fff",
+
+                "&:hover": {
+                  backgroundColor: "#0d1642",
+                },
+              }}
+            >
+              Add Product
             </Button>
           </Box>
-
-          <Button
-            type="submit"
-            fullWidth
-            sx={{
-              mt: 2,
-              backgroundColor: "#1a237e",
-              color: "#fff",
-              "&:hover": {
-                backgroundColor: "#0d1642",
-              },
-            }}
-          >
-            Add Product
-          </Button>
         </Box>
-      </Box>
-    </form>
+      </form>
+
+      {/* ================= SNACKBAR ================= */}
+
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <Alert
+          severity={type}
+          variant="filled"
+          onClose={() => setOpen(false)}
+          sx={{
+            width: "100%",
+          }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

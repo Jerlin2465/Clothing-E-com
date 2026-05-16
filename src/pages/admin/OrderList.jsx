@@ -37,9 +37,7 @@ const OrderList = () => {
 
   const navigate = useNavigate();
 
-  const API_URL =
-    import.meta.env.VITE_API_URL ||
-    "https://clothing-backend-volk.onrender.com";
+  const API_URL = import.meta.env.VITE_API_URL;
 
   // ================= GET ORDERS =================
 

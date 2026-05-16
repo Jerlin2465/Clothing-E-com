@@ -1,6 +1,10 @@
+import React, { useState } from "react";
 import { Box, Button, Paper, Typography } from "@mui/material";
 import { useLocation, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
 
 const PaymentForm = () => {
   const location = useLocation();
@@ -12,26 +16,61 @@ const PaymentForm = () => {
   const totalAmount = Number(location.state?.totalAmount ?? 0);
   const cartItem = location.state?.cartItem || [];
 
+  // ================= SNACKBAR =================
+  const [open, setOpen] = useState(false);
+  const [message, setMessage] = useState("");
+  const [type, setType] = useState("success");
+
+  const showSnackbar = (msg, severity = "success") => {
+    setMessage(msg);
+    setType(severity);
+    setOpen(true);
+  };
+
+  // ================= SESSION CHECK =================
   if (!location.state || totalAmount <= 0 || cartItem.length === 0) {
     return (
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "column",
-          justifyContent: "center",
-          alignItems: "center",
-          minHeight: "100vh",
-          gap: 2,
-        }}
-      >
-        <Typography>Session expired. Please go back to your cart.</Typography>
-        <Button variant="contained" onClick={() => navigate("/cart")}>
-          Back to Cart
-        </Button>
-      </Box>
+      <>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "column",
+            justifyContent: "center",
+            alignItems: "center",
+            minHeight: "100vh",
+            gap: 2,
+          }}
+        >
+          <Typography>Session expired. Please go back to your cart.</Typography>
+
+          <Button variant="contained" onClick={() => navigate("/cart")}>
+            Back to Cart
+          </Button>
+        </Box>
+
+        {/* SNACKBAR */}
+        <Snackbar
+          open={open}
+          autoHideDuration={3000}
+          onClose={() => setOpen(false)}
+          anchorOrigin={{
+            vertical: "top",
+            horizontal: "center",
+          }}
+        >
+          <Alert
+            severity={type}
+            variant="filled"
+            onClose={() => setOpen(false)}
+          >
+            {message}
+          </Alert>
+        </Snackbar>
+      </>
     );
   }
 
+  // ================= PAYMENT =================
   const handlePayment = async () => {
     try {
       const { data } = await axios.post(
@@ -67,15 +106,15 @@ const PaymentForm = () => {
             );
 
             if (!verify.data.success) {
-              alert("Payment verification failed");
+              showSnackbar("Payment verification failed", "error");
               return;
             }
 
-            // 🟢 PLACE ORDER (IMPORTANT FIX: email + name added)
+            // ================= PLACE ORDER =================
             const orderData = {
               userId: user?.id || user?._id,
-              email: user?.email, // 🔥 REQUIRED FOR EMAIL
-              name: user?.name, // 🔥 REQUIRED FOR EMAIL
+              email: user?.email,
+              name: user?.name,
 
               products: cartItem.map((item) => ({
                 productId: item.productId,
@@ -107,20 +146,24 @@ const PaymentForm = () => {
                 console.log("Cart clear error:", err.message);
               }
 
-              alert("Order placed successfully 🎉 Email sent!");
-              navigate("/");
+              showSnackbar("Order placed successfully", "success");
+
+              setTimeout(() => {
+                navigate("/");
+              }, 1500);
             } else {
-              alert(orderRes.data.message);
+              showSnackbar(orderRes.data.message, "warning");
             }
           } catch (err) {
             console.log(err);
-            alert("Something went wrong");
+
+            showSnackbar("Something went wrong", "error");
           }
         },
 
         modal: {
           ondismiss: () => {
-            console.log("Payment cancelled");
+            showSnackbar("Payment cancelled", "warning");
           },
         },
       };
@@ -128,54 +171,102 @@ const PaymentForm = () => {
       new window.Razorpay(options).open();
     } catch (err) {
       console.log(err);
-      alert("Payment failed");
+
+      showSnackbar("Payment failed", "error");
     }
   };
 
   return (
-    <Box
-      sx={{
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        minHeight: "100vh",
-        background: "#aab",
-      }}
-    >
-      <Paper
+    <>
+      <Box
         sx={{
-          width: "320px",
-          padding: "20px",
-          borderRadius: "10px",
-          textAlign: "center",
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+          minHeight: "100vh",
+          background: "#aab",
         }}
       >
-        <Typography variant="h4" sx={{ mb: 3, fontWeight: "bold" }}>
-          Payment
-        </Typography>
-
-        <Typography sx={{ fontSize: "20px", mb: 2 }}>Total Amount</Typography>
-
-        <Typography sx={{ fontSize: "30px", fontWeight: "bold" }}>
-          ₹ {totalAmount.toLocaleString("en-IN")}
-        </Typography>
-
-        <Button
-          onClick={handlePayment}
+        <Paper
           sx={{
-            mt: 4,
-            width: "100%",
-            padding: "12px",
-            backgroundColor: "#0000ff",
-            color: "#fff",
+            width: "320px",
+            padding: "20px",
             borderRadius: "10px",
-            "&:hover": { backgroundColor: "#000" },
+            textAlign: "center",
           }}
         >
-          Pay Now
-        </Button>
-      </Paper>
-    </Box>
+          <Typography
+            variant="h4"
+            sx={{
+              mb: 3,
+              fontWeight: "bold",
+            }}
+          >
+            Payment
+          </Typography>
+
+          <Typography
+            sx={{
+              fontSize: "20px",
+              mb: 2,
+            }}
+          >
+            Total Amount
+          </Typography>
+
+          <Typography
+            sx={{
+              fontSize: "30px",
+              fontWeight: "bold",
+            }}
+          >
+            ₹ {totalAmount.toLocaleString("en-IN")}
+          </Typography>
+
+          <Button
+            onClick={handlePayment}
+            sx={{
+              mt: 4,
+              width: "100%",
+              padding: "12px",
+              backgroundColor: "#0000ff",
+              color: "#fff",
+              borderRadius: "10px",
+
+              "&:hover": {
+                backgroundColor: "#000",
+              },
+            }}
+          >
+            Pay Now
+          </Button>
+        </Paper>
+      </Box>
+
+      {/* ================= SNACKBAR ================= */}
+
+      <Snackbar
+        open={open}
+        autoHideDuration={3000}
+        onClose={() => setOpen(false)}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <Alert
+          severity={type}
+          variant="filled"
+          onClose={() => setOpen(false)}
+          sx={{
+            width: "100%",
+            fontSize: "15px",
+          }}
+        >
+          {message}
+        </Alert>
+      </Snackbar>
+    </>
   );
 };
 

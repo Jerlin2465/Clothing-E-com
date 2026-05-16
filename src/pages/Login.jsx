@@ -15,7 +15,7 @@ import { InputAdornment, IconButton } from "@mui/material";
 import { GrFormViewHide, GrFormView } from "react-icons/gr";
 
 const API_URL =
-  import.meta.env.VITE_API_URL || "https://clothing-backend-volk.onrender.com";
+  import.meta.env.VITE_API_URL 
 
 const Login = () => {
   const navigate = useNavigate();

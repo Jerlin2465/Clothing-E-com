@@ -8,8 +8,10 @@ import { FaHeart } from "react-icons/fa";
 import Skeleton from "@mui/material/Skeleton";
 import Box from "@mui/material/Box";
 
-const API_URL =
-  import.meta.env.VITE_API_URL || "https://clothing-backend-volk.onrender.com";
+import Snackbar from "@mui/material/Snackbar";
+import Alert from "@mui/material/Alert";
+
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Product = () => {
   const { id } = useParams();
@@ -22,12 +24,36 @@ const Product = () => {
   const [selectedSize, setSelectedSize] = useState("");
   const [loading, setLoading] = useState(true);
 
+  // ================= SNACKBAR =================
+  const [snack, setSnack] = useState({
+    open: false,
+    message: "",
+    severity: "success",
+  });
+
+  const showSnackbar = (message, severity = "success") => {
+    setSnack({
+      open: true,
+      message,
+      severity,
+    });
+  };
+
+  const handleCloseSnackbar = () => {
+    setSnack((prev) => ({
+      ...prev,
+      open: false,
+    }));
+  };
+
   const token = localStorage.getItem("token");
 
+  // ================= GET DATA =================
   const getData = async () => {
     try {
       setLoading(true);
 
+      // ALL PRODUCTS
       const allProducts = await axios.get(`${API_URL}/get-product`);
 
       const allData = Array.isArray(allProducts.data)
@@ -36,6 +62,22 @@ const Product = () => {
 
       setProducts(allData);
 
+      // WISHLIST
+      if (token) {
+        const wishlistRes = await axios.get(`${API_URL}/wishlist`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const likedIds = wishlistRes.data.items.map(
+          (item) => item.productId?._id,
+        );
+
+        setLike(likedIds);
+      }
+
+      // SINGLE PRODUCT
       if (id) {
         const single = await axios.get(`${API_URL}/get-product/${id}`);
 
@@ -46,6 +88,8 @@ const Product = () => {
 
       setProducts([]);
       setProduct(null);
+
+      showSnackbar("Failed to load products", "error");
     } finally {
       setLoading(false);
     }
@@ -57,24 +101,32 @@ const Product = () => {
     window.scrollTo(0, 0);
   }, [id]);
 
+  // ================= ADD TO CART =================
   const handleAddToCart = async (productId) => {
     const user = JSON.parse(localStorage.getItem("user"));
 
     if (!selectedSize) {
-      alert("Please select a size");
+      showSnackbar("Please select  size", "warning");
       return;
     }
 
     if (!user) {
-      alert("Please login");
-      navigate("/login");
+      showSnackbar("Please login first", "warning");
+
+      setTimeout(() => {
+        navigate("/login");
+      }, 1000);
+
       return;
     }
 
     try {
       await axios.post(
         `${API_URL}/cart/add`,
-        { productId, size: selectedSize },
+        {
+          productId,
+          size: selectedSize,
+        },
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -82,27 +134,46 @@ const Product = () => {
         },
       );
 
-      navigate("/cart");
+      showSnackbar("Product added to cart", "success");
+
+      setTimeout(() => {
+        navigate("/cart");
+      }, 1000);
     } catch (error) {
       console.log(error.response?.data || error.message);
+
+      showSnackbar("Failed to add cart", "error");
     }
   };
 
+  // ================= WISHLIST =================
   const handleToggle = async (itemId) => {
     try {
+      if (!token) {
+        showSnackbar("Please login first", "warning");
+        return;
+      }
+
       if (like.includes(itemId)) {
         await axios.delete(`${API_URL}/wishlist/remove`, {
-          data: { productId: itemId },
+          data: {
+            productId: itemId,
+          },
+
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
 
-        setLike((prev) => prev.filter((i) => i !== itemId));
+        setLike((prev) => prev.filter((id) => id !== itemId));
+
+        showSnackbar("Removed from wishlist", "info");
       } else {
         await axios.post(
           `${API_URL}/wishlist/add`,
-          { productId: itemId },
+          {
+            productId: itemId,
+          },
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -111,14 +182,19 @@ const Product = () => {
         );
 
         setLike((prev) => [...prev, itemId]);
+
+        showSnackbar("Added to wishlist", "success");
       }
     } catch (error) {
       console.log(error.response?.data || error.message);
+
+      showSnackbar("Wishlist action failed", "error");
     }
   };
 
   return (
     <>
+      {/* ================= LOADING ================= */}
 
       {loading && (
         <div className="pro-page">
@@ -146,7 +222,9 @@ const Product = () => {
                 width={450}
                 height={550}
                 animation="wave"
-                sx={{ borderRadius: "10px" }}
+                sx={{
+                  borderRadius: "10px",
+                }}
               />
             </div>
 
@@ -185,30 +263,34 @@ const Product = () => {
                 width={180}
                 height={50}
                 animation="wave"
-                sx={{ marginTop: "30px" }}
+                sx={{
+                  marginTop: "30px",
+                }}
               />
             </div>
           </div>
         </div>
       )}
 
+      {/* ================= PRODUCT ================= */}
 
       {!loading && id && product && (
         <div className="pro-page">
           <div className="pro-container">
+            {/* IMAGES */}
             <div className="pro-page-img-main">
               <div className="pro-mini-img">
                 {product.image?.map((img, i) => (
                   <img
                     key={i}
                     src={`${API_URL}/uploads/${img}`}
+                    alt=""
                     onClick={() => setSlideimg(i)}
                     style={{
                       cursor: "pointer",
                       border:
                         slideimg === i ? "2px solid black" : "1px solid #ddd",
                     }}
-                    alt=""
                   />
                 ))}
               </div>
@@ -221,6 +303,7 @@ const Product = () => {
               </div>
             </div>
 
+            {/* TEXT */}
             <div
               className="pro-page-text-main"
               style={{
@@ -234,6 +317,7 @@ const Product = () => {
 
               <p>{product.description}</p>
 
+              {/* SIZE */}
               <div className="size-box">
                 {product.size?.length > 0
                   ? product.size.map((s, i) => (
@@ -257,6 +341,7 @@ const Product = () => {
                   : "No sizes"}
               </div>
 
+              {/* BUTTON */}
               <button
                 className="btn-1-pro"
                 style={{
@@ -275,12 +360,21 @@ const Product = () => {
         </div>
       )}
 
+      {/* ================= MORE PRODUCTS ================= */}
 
       <div className="product-pro-page">
-        {id && <h2 style={{ margin: "20px" }}>More Products</h2>}
+        {id && (
+          <h2
+            style={{
+              margin: "20px",
+            }}
+          >
+            More Products
+          </h2>
+        )}
 
         <div className="product-pro-container">
-          {/* CARD SKELETON */}
+          {/* SKELETON */}
           {loading &&
             Array.from(new Array(8)).map((_, index) => (
               <div className="product-pro-card" key={index}>
@@ -313,6 +407,7 @@ const Product = () => {
               </div>
             ))}
 
+          {/* PRODUCTS */}
           {!loading &&
             products
               .filter((item) => item._id !== id)
@@ -368,6 +463,31 @@ const Product = () => {
               ))}
         </div>
       </div>
+
+      {/* ================= SNACKBAR ================= */}
+
+      <Snackbar
+        open={snack.open}
+        autoHideDuration={3000}
+        onClose={handleCloseSnackbar}
+        anchorOrigin={{
+          vertical: "top",
+          horizontal: "center",
+        }}
+      >
+        <Alert
+          onClose={handleCloseSnackbar}
+          severity={snack.severity}
+          variant="filled"
+          sx={{
+            width: "100%",
+            fontSize: "15px",
+            alignItems: "center",
+          }}
+        >
+          {snack.message}
+        </Alert>
+      </Snackbar>
     </>
   );
 };

@@ -5,9 +5,7 @@ import { Box } from "@mui/material";
 const Banner = () => {
   const [banners, setBanners] = useState([]);
 
-  const API_URL =
-    import.meta.env.VITE_API_URL ||
-    "https://clothing-backend-volk.onrender.com";
+  const API_URL = import.meta.env.VITE_API_URL;
 
   const getBanners = async () => {
     try {

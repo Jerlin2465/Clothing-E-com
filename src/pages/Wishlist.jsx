@@ -4,8 +4,7 @@ import "../csspage/Home.css";
 import { useNavigate } from "react-router-dom";
 import { FaHeart } from "react-icons/fa";
 
-const API_URL =
-  import.meta.env.VITE_API_URL || "https://clothing-backend-volk.onrender.com";
+const API_URL = import.meta.env.VITE_API_URL;
 
 const Wishlist = () => {
   const [wishlist, setWishlist] = useState([]);

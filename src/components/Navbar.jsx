@@ -93,10 +93,17 @@ export default function PrimarySearchAppBar() {
       <MenuItem
         onClick={() => {
           handleMenuClose();
-          navigate("/Login");
+
+          if (user) {
+            localStorage.removeItem("user");
+            navigate("/myaccount");
+            window.location.reload();
+          } else {
+            navigate("/Login");
+          }
         }}
       >
-        Login
+        {user ? "Logout" : "Login"}
       </MenuItem>
 
       {user?.role === "admin" && (
@@ -127,17 +134,14 @@ export default function PrimarySearchAppBar() {
           <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
             {/* MOBILE MENU BUTTON */}
             <Box sx={{ display: { xs: "flex", md: "none" } }}>
-              <IconButton
-                color="inherit"
-                onClick={() => setOpenDrawer(true)}
-              >
+              <IconButton color="inherit" onClick={() => setOpenDrawer(true)}>
                 <MenuIcon />
               </IconButton>
             </Box>
 
             {/* LOGO */}
             <Typography
-              variant="h6"
+              variant="h4"
               sx={{
                 cursor: "pointer",
                 fontWeight: "bold",
@@ -148,7 +152,7 @@ export default function PrimarySearchAppBar() {
             </Typography>
           </Box>
 
-          {/* SEARCH */}
+          {/* SEARCH
           <Search
             sx={{
               display: { xs: "none", sm: "block" },
@@ -159,7 +163,7 @@ export default function PrimarySearchAppBar() {
             </SearchIconWrapper>
 
             <StyledInputBase placeholder="Search…" />
-          </Search>
+          </Search> */}
 
           {/* DESKTOP MENU */}
           <Box
@@ -183,17 +187,6 @@ export default function PrimarySearchAppBar() {
               Product
             </Typography>
 
-            <Typography
-              sx={{ cursor: "pointer" }}
-              onClick={() =>
-                document
-                  .querySelector(".about")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-            >
-              About
-            </Typography>
-
             {/* CART */}
             <IconButton color="inherit" onClick={() => navigate("/cart")}>
               <Badge badgeContent={0} color="error">
@@ -202,28 +195,19 @@ export default function PrimarySearchAppBar() {
             </IconButton>
 
             {/* WISHLIST */}
-            <IconButton
-              color="inherit"
-              onClick={() => navigate("/wishlist")}
-            >
+            <IconButton color="inherit" onClick={() => navigate("/wishlist")}>
               <FaRegHeart />
             </IconButton>
 
             {/* PROFILE */}
-            <IconButton
-              color="inherit"
-              onClick={handleProfileMenuOpen}
-            >
+            <IconButton color="inherit" onClick={handleProfileMenuOpen}>
               <AccountCircle />
             </IconButton>
           </Box>
 
           {/* MOBILE PROFILE */}
           <Box sx={{ display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              color="inherit"
-              onClick={handleProfileMenuOpen}
-            >
+            <IconButton color="inherit" onClick={handleProfileMenuOpen}>
               <AccountCircle />
             </IconButton>
           </Box>
@@ -243,15 +227,12 @@ export default function PrimarySearchAppBar() {
             display: "flex",
             flexDirection: "column",
             gap: 3,
-            backgroundColor:"#1a237e",
-            color:"#fff",
-            padding:"10px"
+            backgroundColor: "#1a237e",
+            color: "#fff",
+            padding: "10px",
           }}
         >
-          <Typography
-            variant="h6"
-            sx={{ fontWeight: "bold" }}
-          >
+          <Typography variant="h6" sx={{ fontWeight: "bold" }}>
             Jerry
           </Typography>
 

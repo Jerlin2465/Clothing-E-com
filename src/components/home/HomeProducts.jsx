@@ -18,27 +18,44 @@ const HomeProducts = ({ category }) => {
 
   const navigate = useNavigate();
 
-  // GET PRODUCTS
+  // ================= GET PRODUCTS =================
   const getProduct = async () => {
     try {
       setLoading(true);
 
+      // PRODUCTS
       const res = await axios.get(`${API_URL}/get-product`, {
         params: {
           category: category || undefined,
         },
       });
 
-      // SAFE ARRAY CHECK
       const productsData = Array.isArray(res.data)
         ? res.data
         : res.data.products || [];
 
       setProduct(productsData);
+
+      // ================= WISHLIST =================
+      const token = localStorage.getItem("token");
+
+      // ONLY LOGIN USER
+      if (token) {
+        const wishlistRes = await axios.get(`${API_URL}/wishlist`, {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        const likedIds = wishlistRes.data.items.map(
+          (item) => item.productId?._id,
+        );
+
+        setLike(likedIds);
+      }
     } catch (error) {
       console.log(error.response?.data || error.message);
 
-      // PREVENT MAP ERROR
       setProduct([]);
     } finally {
       setLoading(false);
@@ -49,25 +66,42 @@ const HomeProducts = ({ category }) => {
     getProduct();
   }, [category]);
 
-  // WISHLIST TOGGLE
+  // ================= WISHLIST TOGGLE =================
   const handleToggle = async (id) => {
+    const token = localStorage.getItem("token");
+
+    // LOGIN CHECK
+    if (!token) {
+      navigate("/login");
+      return;
+    }
+
     try {
+      // REMOVE
       if (like.includes(id)) {
         await axios.delete(`${API_URL}/wishlist/remove`, {
-          data: { productId: id },
+          data: {
+            productId: id,
+          },
+
           headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
+            Authorization: `Bearer ${token}`,
           },
         });
 
         setLike((prev) => prev.filter((item) => item !== id));
-      } else {
+      }
+
+      // ADD
+      else {
         await axios.post(
           `${API_URL}/wishlist/add`,
-          { productId: id },
+          {
+            productId: id,
+          },
           {
             headers: {
-              Authorization: `Bearer ${localStorage.getItem("token")}`,
+              Authorization: `Bearer ${token}`,
             },
           },
         );
@@ -82,6 +116,8 @@ const HomeProducts = ({ category }) => {
   return (
     <div className="product-home-page">
       <div className="product-home-container">
+        {/* ================= SKELETON ================= */}
+
         {loading &&
           Array.from(new Array(8)).map((_, index) => (
             <div className="product-home-card" key={index}>
@@ -91,11 +127,19 @@ const HomeProducts = ({ category }) => {
                   variant="rectangular"
                   width="100%"
                   height={260}
-                  sx={{ borderRadius: "10px" }}
+                  sx={{
+                    borderRadius: "10px",
+                  }}
                 />
 
                 {/* TITLE */}
-                <Skeleton width="80%" height={35} sx={{ marginTop: "10px" }} />
+                <Skeleton
+                  width="80%"
+                  height={35}
+                  sx={{
+                    marginTop: "10px",
+                  }}
+                />
 
                 {/* DESCRIPTION */}
                 <Skeleton width="60%" />
@@ -109,20 +153,25 @@ const HomeProducts = ({ category }) => {
             </div>
           ))}
 
+        {/* ================= PRODUCTS ================= */}
+
         {!loading &&
           product.map((item) => {
             const currentIndex = slideimg[item._id] || 0;
 
             return (
               <div className="product-home-card" key={item._id}>
+                {/* IMAGE */}
                 <div className="image-box">
                   <span className="badge">{item.gender}</span>
 
                   <img
                     src={`${API_URL}/uploads/${item.image?.[currentIndex]}`}
                     alt="product"
+                    onClick={() => navigate(`/product/${item._id}`)}
                   />
 
+                  {/* HEART */}
                   <span
                     className="badg-1"
                     style={{
@@ -134,6 +183,7 @@ const HomeProducts = ({ category }) => {
                     <FaHeart
                       style={{
                         color: like.includes(item._id) ? "red" : "#ccc",
+
                         fontSize: "20px",
                       }}
                     />
