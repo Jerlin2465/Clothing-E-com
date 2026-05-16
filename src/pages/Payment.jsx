@@ -148,9 +148,7 @@ const PaymentForm = () => {
 
               showSnackbar("Order placed successfully", "success");
 
-              setTimeout(() => {
-                navigate("/");
-              }, 1500);
+              navigate("/");
             } else {
               showSnackbar(orderRes.data.message, "warning");
             }
