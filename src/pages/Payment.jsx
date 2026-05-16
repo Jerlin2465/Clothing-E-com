@@ -17,17 +17,25 @@ const PaymentForm = () => {
   const cartItem = location.state?.cartItem || [];
 
   // ================= SNACKBAR =================
+
   const [open, setOpen] = useState(false);
+
   const [message, setMessage] = useState("");
+
   const [type, setType] = useState("success");
+
+  const [loading, setLoading] = useState(false);
 
   const showSnackbar = (msg, severity = "success") => {
     setMessage(msg);
+
     setType(severity);
+
     setOpen(true);
   };
 
   // ================= SESSION CHECK =================
+
   if (!location.state || totalAmount <= 0 || cartItem.length === 0) {
     return (
       <>
@@ -48,7 +56,6 @@ const PaymentForm = () => {
           </Button>
         </Box>
 
-        {/* SNACKBAR */}
         <Snackbar
           open={open}
           autoHideDuration={3000}
@@ -71,8 +78,13 @@ const PaymentForm = () => {
   }
 
   // ================= PAYMENT =================
+
   const handlePayment = async () => {
     try {
+      setLoading(true);
+
+      // CREATE ORDER
+
       const { data } = await axios.post(
         `${import.meta.env.VITE_API_URL}/payment/order`,
         {
@@ -82,20 +94,30 @@ const PaymentForm = () => {
 
       const options = {
         key: import.meta.env.VITE_RAZOR_PAYMENT_ID,
+
         amount: data.amount,
+
         currency: data.currency,
+
         name: "Shop",
+
+        description: "Order Payment",
+
         order_id: data.id,
 
         handler: async function (response) {
           try {
-            // VERIFY PAYMENT
+            // ================= VERIFY PAYMENT =================
+
             const verify = await axios.post(
               `${import.meta.env.VITE_API_URL}/payment/verify`,
               {
                 razorpay_order_id: response.razorpay_order_id,
+
                 razorpay_payment_id: response.razorpay_payment_id,
+
                 razorpay_signature: response.razorpay_signature,
+
                 totalAmount,
               },
               {
@@ -105,36 +127,55 @@ const PaymentForm = () => {
               },
             );
 
+            console.log("VERIFY RESPONSE:", verify.data);
+
             if (!verify.data.success) {
               showSnackbar("Payment verification failed", "error");
+
               return;
             }
 
             // ================= PLACE ORDER =================
+
             const orderData = {
               userId: user?.id || user?._id,
+
               email: user?.email,
+
               name: user?.name,
 
               products: cartItem.map((item) => ({
-                productId: item.productId,
+                productId: item.productId?._id || item.productId,
+
                 size: item.size,
+
                 quantity: item.quantity,
               })),
 
               totalAmount,
+
               paymentStatus: "Paid",
             };
+
+            console.log("ORDER DATA:", orderData);
 
             const orderRes = await axios.post(
               `${import.meta.env.VITE_API_URL}/order/place-order`,
               orderData,
+              {
+                headers: {
+                  Authorization: `Bearer ${token}`,
+                },
+              },
             );
 
+            console.log("ORDER RESPONSE:", orderRes.data);
+
             if (orderRes.data.success) {
-              // CLEAR CART
+              // ================= CLEAR CART =================
+
               try {
-                await axios.delete(
+                const clearRes = await axios.delete(
                   `${import.meta.env.VITE_API_URL}/cart/clear`,
                   {
                     headers: {
@@ -142,18 +183,32 @@ const PaymentForm = () => {
                     },
                   },
                 );
+
+                console.log("CART CLEAR:", clearRes.data);
               } catch (err) {
-                console.log("Cart clear error:", err.message);
+                console.log(
+                  "Cart clear error:",
+                  err.response?.data || err.message,
+                );
               }
+
+              // ================= SHOW SUCCESS =================
 
               showSnackbar("Order placed successfully", "success");
 
-              navigate("/");
+              // WAIT FOR SNACKBAR
+
+              setTimeout(() => {
+                navigate("/");
+              }, 1500);
             } else {
-              showSnackbar(orderRes.data.message, "warning");
+              showSnackbar(orderRes.data.message || "Order failed", "warning");
             }
           } catch (err) {
-            console.log(err);
+            console.log(
+              "PAYMENT HANDLER ERROR:",
+              err.response?.data || err.message,
+            );
 
             showSnackbar("Something went wrong", "error");
           }
@@ -164,13 +219,27 @@ const PaymentForm = () => {
             showSnackbar("Payment cancelled", "warning");
           },
         },
+
+        theme: {
+          color: "#0000ff",
+        },
       };
 
-      new window.Razorpay(options).open();
+      const razor = new window.Razorpay(options);
+
+      razor.open();
+
+      razor.on("payment.failed", function (response) {
+        console.log(response.error);
+
+        showSnackbar("Payment failed", "error");
+      });
     } catch (err) {
-      console.log(err);
+      console.log("PAYMENT ERROR:", err.response?.data || err.message);
 
       showSnackbar("Payment failed", "error");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -179,17 +248,25 @@ const PaymentForm = () => {
       <Box
         sx={{
           display: "flex",
+
           justifyContent: "center",
+
           alignItems: "center",
+
           minHeight: "100vh",
-          background: "#aab",
+
+          background: "linear-gradient(to right, #dbeafe, #bfdbfe)",
         }}
       >
         <Paper
+          elevation={5}
           sx={{
-            width: "320px",
-            padding: "20px",
-            borderRadius: "10px",
+            width: "350px",
+
+            padding: "30px",
+
+            borderRadius: "15px",
+
             textAlign: "center",
           }}
         >
@@ -197,6 +274,7 @@ const PaymentForm = () => {
             variant="h4"
             sx={{
               mb: 3,
+
               fontWeight: "bold",
             }}
           >
@@ -206,6 +284,7 @@ const PaymentForm = () => {
           <Typography
             sx={{
               fontSize: "20px",
+
               mb: 2,
             }}
           >
@@ -214,8 +293,11 @@ const PaymentForm = () => {
 
           <Typography
             sx={{
-              fontSize: "30px",
+              fontSize: "32px",
+
               fontWeight: "bold",
+
+              color: "#0000ff",
             }}
           >
             ₹ {totalAmount.toLocaleString("en-IN")}
@@ -223,20 +305,28 @@ const PaymentForm = () => {
 
           <Button
             onClick={handlePayment}
+            disabled={loading}
             sx={{
               mt: 4,
+
               width: "100%",
+
               padding: "12px",
+
               backgroundColor: "#0000ff",
+
               color: "#fff",
+
               borderRadius: "10px",
+
+              fontSize: "16px",
 
               "&:hover": {
                 backgroundColor: "#000",
               },
             }}
           >
-            Pay Now
+            {loading ? "Processing..." : "Pay Now"}
           </Button>
         </Paper>
       </Box>
@@ -258,6 +348,7 @@ const PaymentForm = () => {
           onClose={() => setOpen(false)}
           sx={{
             width: "100%",
+
             fontSize: "15px",
           }}
         >
